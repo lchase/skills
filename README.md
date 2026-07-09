@@ -23,6 +23,24 @@ The `code-review` skill also triggers automatically when you ask Claude to revie
 |---|---|
 | [`code-review`](plugins/code-review/) | Multi-lens code review: six lenses merged into one deduplicated, severity-ranked verdict. See its README for the design. |
 
+## Skills
+ 
+### code-review
+ 
+*An ensemble code review: several specialized lenses, one merged verdict — not another pile of comments.*
+ 
+Most code review, human or AI, is one reviewer making a single pass and leaving a list of comments. This runs six specialized lenses instead — spec-conformance, correctness, security, performance, design, and tests — each in its own isolated context so their blind spots don't line up, then merges the results into one verdict: duplicates collapsed, findings that several lenses independently raise weighted up, conflicting advice reconciled, severity rolled up, structural problems first, nits capped. The merge is the point — an ensemble without it is just louder, and a longer checklist handed to one reviewer only dilutes its attention and repeats its own misses.
+ 
+Two modes: a fast single pass (`min`) for tight loops, and an orchestrated ensemble (`max`) that fans the lenses out as parallel, optionally cross-model, subagents for pre-merge review. Plain `/code-review:review` routes between them by change size and sensitivity.
+ 
+```
+/code-review:review    # auto — routes to min or max
+/code-review:min       # fast single pass
+/code-review:max       # full ensemble, for pre-merge
+```
+ 
+It also triggers on its own when you ask Claude to review a diff, PR, or branch. Design and internals: [`plugins/code-review/`](plugins/code-review/).
+
 ## Repo layout
 
 ```
