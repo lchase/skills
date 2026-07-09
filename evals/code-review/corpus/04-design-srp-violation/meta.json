@@ -1,0 +1,1 @@
+{ "id": "04-design-srp-violation", "title": "One function doing validation, persistence, email, analytics, and response shaping", "primary_lens": "design", "spec": "Create a user from a signup request.", "files": ["after.ts"] }

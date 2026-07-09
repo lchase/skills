@@ -1,0 +1,1 @@
+{ "must_find": [ { "category": "n-plus-one", "file": "after.ts", "near_line": 8, "min_severity": "P1", "lens": "performance", "note": "a customer query fires per order; batch with WHERE id IN (...) or a join" } ] }

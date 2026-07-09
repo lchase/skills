@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "chase",
+  "owner": {
+    "name": "Lawrence Chase"
+  },
+  "description": "Chase — engineering skills for agentic development workflows.",
+  "plugins": [
+    {
+      "name": "code-review",
+      "source": "./plugins/code-review",
+      "description": "Multi-lens code review of a diff: six specialized lenses (spec-conformance, correctness, security, performance, design, tests) merged into one deduplicated, severity-ranked verdict. Fast single-pass (min) and orchestrated ensemble (max) modes.",
+      "category": "development",
+      "keywords": ["code-review", "review", "quality", "security", "performance", "pr", "pre-merge"]
+    }
+  ]
+}

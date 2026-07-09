@@ -1,0 +1,1 @@
+{ "must_find": [ { "category": "srp-violation", "file": "after.ts", "near_line": 7, "min_severity": "P2", "lens": "design", "note": "validation + persistence + email + analytics + response formatting in one unit; separate orchestration from the steps" } ] }

@@ -1,0 +1,1 @@
+{ "must_find": [ { "category": "off-by-one", "file": "after.ts", "near_line": 5, "min_severity": "P1", "lens": "correctness", "note": "slice end is exclusive; end+1 returns size+1 items and overlaps the next page" } ] }

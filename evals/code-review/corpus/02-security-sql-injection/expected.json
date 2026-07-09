@@ -1,0 +1,1 @@
+{ "must_find": [ { "category": "sql-injection", "file": "after.ts", "near_line": 6, "min_severity": "P0", "lens": "security", "note": "req.query.name concatenated into SQL; use a parameterized query" } ] }

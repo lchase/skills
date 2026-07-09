@@ -1,0 +1,1 @@
+{ "id": "01-correctness-off-by-one", "title": "Off-by-one in pagination slice", "primary_lens": "correctness", "spec": "paginate(items, page, size) returns exactly `size` items for the given 1-indexed page.", "files": ["after.ts"] }

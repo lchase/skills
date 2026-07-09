@@ -1,0 +1,1 @@
+{ "id": "03-performance-n-plus-one", "title": "Query per row (N+1) enriching orders", "primary_lens": "performance", "spec": "Given order ids, return each order with its customer name.", "files": ["after.ts"] }

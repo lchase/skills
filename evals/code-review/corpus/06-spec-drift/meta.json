@@ -1,0 +1,1 @@
+{ "id": "06-spec-drift", "title": "Hard-deletes instead of soft-deleting, and wipes all sessions globally", "primary_lens": "spec-conformance", "spec": "deleteAccount(userId) soft-deletes the user by setting deletedAt. It must not touch other users' data.", "files": ["after.ts"] }

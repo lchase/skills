@@ -1,0 +1,1 @@
+{ "id": "07-clean-no-findings", "title": "Correct, simple diff with a perf false-positive trap", "primary_lens": "correctness", "spec": "Sum prices and apply the selected fixed tax bracket, rounded to cents.", "files": ["after.ts"] }

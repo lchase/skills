@@ -1,0 +1,1 @@
+{ "id": "02-security-sql-injection", "title": "String-concatenated SQL from request input", "primary_lens": "security", "spec": "Search users by a name substring from the query string.", "files": ["after.ts"] }

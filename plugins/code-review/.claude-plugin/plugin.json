@@ -1,0 +1,10 @@
+{
+  "name": "code-review",
+  "description": "Multi-lens code review of a diff. Six specialized lenses (spec-conformance, correctness, security, performance, design, tests) run over the changes and their findings are merged into one deduplicated, severity-ranked verdict. Fast single-pass (min) and orchestrated ensemble (max) modes.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Lawrence Chase"
+  },
+  "keywords": ["code-review", "review", "quality", "security", "performance", "pr", "pre-merge"],
+  "license": "MIT"
+}

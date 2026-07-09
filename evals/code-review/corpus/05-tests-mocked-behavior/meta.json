@@ -1,0 +1,1 @@
+{ "id": "05-tests-mocked-behavior", "title": "Test asserts the mock was called, not the behavior; zero-amount edge unasserted", "primary_lens": "tests", "spec": "chargeCard should reject a zero or negative amount and otherwise charge via the gateway.", "files": ["after.test.ts"] }
