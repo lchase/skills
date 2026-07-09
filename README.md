@@ -37,7 +37,7 @@ evals/<name>/                      # dev-only eval kits (not shipped to installe
 
 ## Releasing
 
-There's no build step. Push to the repo and every commit is a new version (no `version` field means Claude Code uses the commit SHA). Users pull changes with `/plugin marketplace update`. To pin releases instead, set `version` in a plugin's `plugin.json` and bump it per release.
+Pull changes with `/plugin marketplace update`. To pin releases instead, set `version` in a plugin's `plugin.json` and bump it per release.
 
 Validate before pushing:
 
