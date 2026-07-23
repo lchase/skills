@@ -1,6 +1,6 @@
 ---
 name: tests-reviewer
-description: Reviews a diff for test quality — real behavior vs mocks, coverage of changed behavior, edge cases, determinism, and test level. Dispatched by the code-review skill in max mode.
+description: Reviews a diff for test quality — real behavior vs mocks, coverage of changed behavior, edge cases, determinism, and test level. Dispatched by the smart-review skill in max mode.
 tools: Read, Grep, Glob
 ---
 

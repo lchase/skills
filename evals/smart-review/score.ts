@@ -1,4 +1,4 @@
-// Scorer for the code-review eval corpus.
+// Scorer for the smart-review eval corpus.
 // Dependency-free (Node built-ins only). Run via tsx: `npm run score`.
 //
 //   npm run score                      overall + per-case + per-lens
@@ -150,7 +150,7 @@ function pad(s: string, n: number): string {
 
 function listCorpus(args: Args) {
   const dirs = corpusDirs(args.corpus);
-  console.log(`\ncode-review eval corpus (${dirs.length} cases)\n`);
+  console.log(`\nsmart-review eval corpus (${dirs.length} cases)\n`);
   for (const d of dirs) {
     const meta = readJson<CaseMeta>(join(d, "meta.json"));
     const exp = readJson<ExpectedSpec>(join(d, "expected.json"));
@@ -182,7 +182,7 @@ function main() {
   const results = dirs.map((d) => scoreCase(d, args));
   const anyActual = results.some((r) => r.totalActual > 0);
 
-  console.log(`\ncode-review eval — ${results.length} cases` + (args.drop ? `  [ablation: dropped ${args.drop}]` : ""));
+  console.log(`\nsmart-review eval — ${results.length} cases` + (args.drop ? `  [ablation: dropped ${args.drop}]` : ""));
   if (!anyActual) {
     console.log(
       "\n⚠  No actual.json found in any case. Run the reviewer on each case and save its\n" +

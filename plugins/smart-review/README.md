@@ -1,28 +1,28 @@
-# code-review
+# smart-review
 
-A multi-lens code-review plugin for Claude Code. Six specialized review lenses run over a diff and their findings are merged into a single deduplicated, severity-ranked verdict. Built on the observation that no single reviewer catches everything: the differentiator here is the **merge**, not any individual lens.
+A multi-lens code review plugin for Claude Code. Six specialized review lenses run over a diff and their findings are merged into a single deduplicated, severity-ranked verdict. Built on the observation that no single reviewer catches everything: the differentiator here is the **merge**, not any individual lens.
 
 ## Install
 
 ```
 /plugin marketplace add lchase/skills
-/plugin install code-review@chase
+/plugin install smart-review@chase
 ```
 
 ## Modes
 
 Commands are namespaced by the plugin:
 
-- **`/code-review:review`** — auto: picks min or max by change size and sensitivity.
-- **`/code-review:min`** — one pass, one context, no subagents. Fast; for tight loops and small diffs.
-- **`/code-review:max`** — spec-gate, then lenses fan out as isolated parallel subagents, merged into one verdict. For pre-merge and high-stakes changes.
+- **`/smart-review:review`** — auto: picks min or max by change size and sensitivity.
+- **`/smart-review:min`** — one pass, one context, no subagents. Fast; for tight loops and small diffs.
+- **`/smart-review:max`** — spec-gate, then lenses fan out as isolated parallel subagents, merged into one verdict. For pre-merge and high-stakes changes.
 
 The skill also triggers automatically when you ask Claude to review code, check a diff, or judge whether something is ready to merge — you don't have to run a command. The commands just force a specific mode.
 
 ## How it works
 
 ```
-/code-review:review ─► router (size + sensitivity) ─► min | max
+/smart-review:review ─► router (size + sensitivity) ─► min | max
 
 min :  scope diff ─► all 6 lenses in ONE context ─► merge ─► verdict
 max :  scope diff ─► SPEC-GATE ─► fan out 5 reviewer subagents,
@@ -31,11 +31,11 @@ max :  scope diff ─► SPEC-GATE ─► fan out 5 reviewer subagents,
 
 Component layout inside this plugin:
 
-- **The skill** (`skills/code-review/SKILL.md`) — the brain: routing, the min/max workflows, and the report format. Auto-triggers and orchestrates.
-- **Lenses** (`skills/code-review/references/lenses/`) — the six review perspectives: spec-conformance, correctness, security, performance, design, tests. Fixed set.
-- **Domain checklists** (`skills/code-review/references/domain/`) — database, TypeScript/Node, API, frontend/a11y. Injected into the relevant lens when the diff touches that domain (see `references/checklist-routing.md`). Add depth by adding a checklist + a routing row, not a new reviewer.
-- **Finding schema** (`skills/code-review/references/finding-schema.md`) — the one shape every lens emits, so findings can be merged mechanically.
-- **Merge contract** (`skills/code-review/references/merge-contract.md`) — dedup, agreement-weighting, conflict resolution, severity rollup, structure-over-nits, nit cap. This is the product.
+- **The skill** (`skills/smart-review/SKILL.md`) — the brain: routing, the min/max workflows, and the report format. Auto-triggers and orchestrates.
+- **Lenses** (`skills/smart-review/references/lenses/`) — the six review perspectives: spec-conformance, correctness, security, performance, design, tests. Fixed set.
+- **Domain checklists** (`skills/smart-review/references/domain/`) — database, TypeScript/Node, API, frontend/a11y. Injected into the relevant lens when the diff touches that domain (see `references/checklist-routing.md`). Add depth by adding a checklist + a routing row, not a new reviewer.
+- **Finding schema** (`skills/smart-review/references/finding-schema.md`) — the one shape every lens emits, so findings can be merged mechanically.
+- **Merge contract** (`skills/smart-review/references/merge-contract.md`) — dedup, agreement-weighting, conflict resolution, severity rollup, structure-over-nits, nit cap. This is the product.
 - **Reviewer subagents** (`agents/`) — the isolated reviewers `max` fans out (`*-reviewer`), plus `merge-synthesizer`. Registered as read-only subagents (`tools: Read, Grep, Glob`); each runs in its own context, which is what keeps their findings decorrelated.
 - **Commands** (`commands/`) — the three mode entry points above.
 
@@ -51,4 +51,4 @@ Same model reviewing alone repeats its own blind spots; different models miss di
 
 ## Evals
 
-The eval kit lives at the repo root under `evals/code-review/` (dev-only; it isn't part of the installed plugin). It measures the reviewer empirically — recall and precision per lens, and each lens's marginal contribution via ablation — so you can answer "is max worth its cost?" and "which lenses actually earn their place?" with numbers rather than vibes. See `evals/code-review/README.md`.
+The eval kit lives at the repo root under `evals/smart-review/` (dev-only; it isn't part of the installed plugin). It measures the reviewer empirically — recall and precision per lens, and each lens's marginal contribution via ablation — so you can answer "is max worth its cost?" and "which lenses actually earn their place?" with numbers rather than vibes. See `evals/smart-review/README.md`.

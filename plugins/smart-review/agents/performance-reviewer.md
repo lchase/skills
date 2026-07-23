@@ -1,6 +1,6 @@
 ---
 name: performance-reviewer
-description: Reviews a diff for N+1 queries, algorithmic complexity, hot-path allocation, missing indexes/caching, and blocking I/O. Dispatched by the code-review skill in max mode.
+description: Reviews a diff for N+1 queries, algorithmic complexity, hot-path allocation, missing indexes/caching, and blocking I/O. Dispatched by the smart-review skill in max mode.
 tools: Read, Grep, Glob
 ---
 

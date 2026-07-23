@@ -6,40 +6,40 @@ Engineering skills for agentic development workflows, packaged as a Claude Code 
 
 ```
 /plugin marketplace add lchase/skills
-/plugin install code-review@chase
+/plugin install smart-review@chase
 ```
 
 Then the plugin's slash commands are available (namespaced by plugin):
 
-- `/code-review:review` — auto (routes to min or max by size + sensitivity)
-- `/code-review:min` — fast single-pass review
-- `/code-review:max` — orchestrated ensemble review
+- `/smart-review:review` — auto (routes to min or max by size + sensitivity)
+- `/smart-review:min` — fast single-pass review
+- `/smart-review:max` — orchestrated ensemble review
 
-The `code-review` skill also triggers automatically when you ask Claude to review a diff, PR, or branch — you don't have to invoke a command.
+The `smart-review` skill also triggers automatically when you ask Claude to review a diff, PR, or branch — you don't have to invoke a command.
 
 ## Plugins
 
 | Plugin | What it does |
 |---|---|
-| [`code-review`](plugins/code-review/) | Multi-lens code review: six lenses merged into one deduplicated, severity-ranked verdict. See its README for the design. |
+| [`smart-review`](plugins/smart-review/) | Multi-lens code review: six lenses merged into one deduplicated, severity-ranked verdict. See its README for the design. |
 
 ## Skills
  
-### code-review
+### smart-review
  
 *An ensemble code review: several specialized lenses, one merged verdict — not another pile of comments.*
  
 Most code review, human or AI, is one reviewer making a single pass and leaving a list of comments. This runs six specialized lenses instead — spec-conformance, correctness, security, performance, design, and tests — each in its own isolated context so their blind spots don't line up, then merges the results into one verdict: duplicates collapsed, findings that several lenses independently raise weighted up, conflicting advice reconciled, severity rolled up, structural problems first, nits capped. The merge is the point — an ensemble without it is just louder, and a longer checklist handed to one reviewer only dilutes its attention and repeats its own misses.
  
-Two modes: a fast single pass (`min`) for tight loops, and an orchestrated ensemble (`max`) that fans the lenses out as parallel, optionally cross-model, subagents for pre-merge review. Plain `/code-review:review` routes between them by change size and sensitivity.
+Two modes: a fast single pass (`min`) for tight loops, and an orchestrated ensemble (`max`) that fans the lenses out as parallel, optionally cross-model, subagents for pre-merge review. Plain `/smart-review:review` routes between them by change size and sensitivity.
  
 ```
-/code-review:review    # auto — routes to min or max
-/code-review:min       # fast single pass
-/code-review:max       # full ensemble, for pre-merge
+/smart-review:review    # auto — routes to min or max
+/smart-review:min       # fast single pass
+/smart-review:max       # full ensemble, for pre-merge
 ```
  
-It also triggers on its own when you ask Claude to review a diff, PR, or branch. Design and internals: [`plugins/code-review/`](plugins/code-review/).
+It also triggers on its own when you ask Claude to review a diff, PR, or branch. Design and internals: [`plugins/smart-review/`](plugins/smart-review/).
 
 ## Repo layout
 
@@ -61,5 +61,5 @@ Validate before pushing:
 
 ```
 claude plugin validate .
-claude plugin validate ./plugins/code-review
+claude plugin validate ./plugins/smart-review
 ```

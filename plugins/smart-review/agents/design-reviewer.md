@@ -1,6 +1,6 @@
 ---
 name: design-reviewer
-description: Reviews a diff for SOLID violations, Fowler code smells, coupling/cohesion, module boundaries, and dead code. Dispatched by the code-review skill in max mode.
+description: Reviews a diff for SOLID violations, Fowler code smells, coupling/cohesion, module boundaries, and dead code. Dispatched by the smart-review skill in max mode.
 tools: Read, Grep, Glob
 ---
 

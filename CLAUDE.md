@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A Claude Code **plugin marketplace** (`.claude-plugin/marketplace.json`, marketplace name `chase`). It ships one plugin today, `code-review`, under `plugins/code-review/`. There is no application build — the product is markdown (skills, agent prompts, slash commands) plus a small TypeScript eval harness that scores the reviewer empirically.
+A Claude Code **plugin marketplace** (`.claude-plugin/marketplace.json`, marketplace name `chase`). It ships one plugin today, `smart-review`, under `plugins/smart-review/`. There is no application build — the product is markdown (skills, agent prompts, slash commands) plus a small TypeScript eval harness that scores the reviewer empirically.
 
 ## Commands
 
@@ -12,20 +12,20 @@ Validate a plugin/marketplace before pushing (no CI configured — do this manua
 
 ```bash
 claude plugin validate .
-claude plugin validate ./plugins/code-review
+claude plugin validate ./plugins/smart-review
 ```
 
-Eval harness (`evals/code-review/`, Node 18+, dev-only — excluded from the packaged plugin):
+Eval harness (`evals/smart-review/`, Node 18+, dev-only — excluded from the packaged plugin):
 
 ```bash
-cd evals/code-review && npm install
+cd evals/smart-review && npm install
 npm run list                        # print corpus manifest, no scoring
 npm run score                       # recall/precision, overall + per-case + per-lens
 npm run score -- --drop security    # ablation: recall with one lens removed
 npm run score -- --window 8         # widen line-match tolerance (default 5)
 ```
 
-There is no automated "run the reviewer" step — producing `corpus/<case>/actual.json` (the input to `npm run score`) means actually invoking the `code-review` skill on that case's `after.ts`/`meta.json` inside Claude Code and saving its findings JSON. `score.ts` reads `corpus/<case>/{meta,expected,actual}.json` and matches findings on `(category, file, line±window)`.
+There is no automated "run the reviewer" step — producing `corpus/<case>/actual.json` (the input to `npm run score`) means actually invoking the `smart-review` skill on that case's `after.ts`/`meta.json` inside Claude Code and saving its findings JSON. `score.ts` reads `corpus/<case>/{meta,expected,actual}.json` and matches findings on `(category, file, line±window)`.
 
 ## Repo layout
 
@@ -42,16 +42,16 @@ evals/<name>/                       # dev-only eval kit for that plugin; exclude
 
 Adding a new plugin means adding a directory under `plugins/` plus a matching entry in `.claude-plugin/marketplace.json` — the two must stay consistent (name, description). There's no version pinning by default: no `version` field means Claude Code resolves installs to the commit SHA, so every push is effectively a new release; set/bump `version` in a plugin's `plugin.json` to pin instead.
 
-## Architecture: the `code-review` plugin
+## Architecture: the `smart-review` plugin
 
 The design principle behind this plugin: **the merge is the product, not the lenses.** Six reviewers each checking one thing beats one reviewer checking six things (attention dilution), and one model reviewing alone repeats its own blind spots. Everything here exists to get ensemble recall without ensemble noise.
 
 Three ways to invoke it, routed by `SKILL.md`:
-- `/code-review:min` — one agent, one context, all six lenses walked in sequence, no subagents. Fast path for small/low-risk diffs.
-- `/code-review:max` — orchestrated ensemble: spec-gate first (stop early if the diff implements the wrong thing), then the five remaining lenses fan out as **isolated parallel subagents** (`agents/*-reviewer.md`), then a `merge-synthesizer` subagent combines everything into one verdict.
-- `/code-review:review` (or the skill auto-triggering on "review this diff/PR/branch") — routes to min or max based on diff size (>~150 lines or >~5 files), whether it touches a sensitive path (auth, crypto, SQL, shell/file exec, payments, PII), or an explicit ask for a pre-merge/thorough review.
+- `/smart-review:min` — one agent, one context, all six lenses walked in sequence, no subagents. Fast path for small/low-risk diffs.
+- `/smart-review:max` — orchestrated ensemble: spec-gate first (stop early if the diff implements the wrong thing), then the five remaining lenses fan out as **isolated parallel subagents** (`agents/*-reviewer.md`), then a `merge-synthesizer` subagent combines everything into one verdict.
+- `/smart-review:review` (or the skill auto-triggering on "review this diff/PR/branch") — routes to min or max based on diff size (>~150 lines or >~5 files), whether it touches a sensitive path (auth, crypto, SQL, shell/file exec, payments, PII), or an explicit ask for a pre-merge/thorough review.
 
-Key structural pieces, all under `plugins/code-review/skills/code-review/`:
+Key structural pieces, all under `plugins/smart-review/skills/smart-review/`:
 - **Lenses are fixed** (`references/lenses/{spec-conformance,correctness,security,performance,design,tests}.md`) — spec-conformance, correctness, security, performance, design, tests. Don't add a seventh lens for a new domain.
 - **Domain depth rides in as checklists** (`references/domain/{api,database,frontend-a11y,typescript-node}.md`), injected into whichever lens applies per `references/checklist-routing.md`'s trigger table. Extending coverage for a new domain means adding a checklist + a routing row, not a new reviewer — this is what keeps `max`'s cost (5 subagents) fixed as coverage grows.
 - **`references/finding-schema.md`** defines the one shape every lens must emit (`{file, line_start, line_end, lens, category, severity, title, why, proposed_move, confidence}`) — the merge step operates mechanically on these fields, so a lens can't free-text its way out of the schema.
@@ -62,4 +62,4 @@ Because Claude Code subagents cannot spawn subagents, the **top-level agent is a
 
 ## Working on this repo
 
-Changes to a lens checklist, the finding schema, or the merge contract affect every mode (`min` inlines the same references) — check `SKILL.md`'s min workflow and the `max` agent prompts both still make sense after editing a shared reference file. When adding eval corpus cases (`evals/code-review/corpus/<n>-<lens>-<defect>/`), the `category` in `expected.json` must match the vocabulary fixed by `finding-schema.md`, since scoring matches on it exactly.
+Changes to a lens checklist, the finding schema, or the merge contract affect every mode (`min` inlines the same references) — check `SKILL.md`'s min workflow and the `max` agent prompts both still make sense after editing a shared reference file. When adding eval corpus cases (`evals/smart-review/corpus/<n>-<lens>-<defect>/`), the `category` in `expected.json` must match the vocabulary fixed by `finding-schema.md`, since scoring matches on it exactly.

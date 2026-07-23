@@ -1,6 +1,6 @@
 ---
 name: spec-conformance-reviewer
-description: The spec-gate for code review. Decides whether a diff implements the right thing before any quality review runs. Dispatched by the code-review skill in max mode.
+description: The spec-gate for code review. Decides whether a diff implements the right thing before any quality review runs. Dispatched by the smart-review skill in max mode.
 tools: Read, Grep, Glob
 ---
 

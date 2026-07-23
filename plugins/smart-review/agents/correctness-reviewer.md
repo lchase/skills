@@ -1,6 +1,6 @@
 ---
 name: correctness-reviewer
-description: Reviews a diff for logic bugs, edge cases, error handling, concurrency, and resource lifecycle issues. Dispatched by the code-review skill in max mode.
+description: Reviews a diff for logic bugs, edge cases, error handling, concurrency, and resource lifecycle issues. Dispatched by the smart-review skill in max mode.
 tools: Read, Grep, Glob
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: merge-synthesizer
-description: Aggregates all lens findings into one deduplicated, agreement-weighted, severity-ranked verdict. The only stage that sees every reviewer's output. Dispatched by the code-review skill in max mode.
+description: Aggregates all lens findings into one deduplicated, agreement-weighted, severity-ranked verdict. The only stage that sees every reviewer's output. Dispatched by the smart-review skill in max mode.
 tools: Read, Grep, Glob
 ---
 

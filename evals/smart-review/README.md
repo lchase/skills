@@ -1,4 +1,4 @@
-# code-review evals
+# smart-review evals
 
 A starter harness for measuring the reviewer **empirically** instead of by vibes. It answers the questions that motivated this skill: which lenses actually catch things, how much each lens contributes on the margin, and whether `max` earns its extra cost over `min`.
 
@@ -26,7 +26,7 @@ corpus/<case>/
 
 Requires Node 18+ and `tsx` (`npm i`). Two steps:
 
-**1. Produce `actual.json` for each case** by running the skill on that case's `after.ts` (and its `meta.json` spec), and saving the emitted findings array as `corpus/<case>/actual.json`. In Claude Code you can do this by pointing `/code-review` at the file with the meta's spec; capture the JSON findings the lenses produce. (The report is for humans; the findings array is what the scorer reads. Have the skill emit the raw findings JSON alongside the report when running evals.)
+**1. Produce `actual.json` for each case** by running the skill on that case's `after.ts` (and its `meta.json` spec), and saving the emitted findings array as `corpus/<case>/actual.json`. In Claude Code you can do this by pointing `/smart-review` at the file with the meta's spec; capture the JSON findings the lenses produce. (The report is for humans; the findings array is what the scorer reads. Have the skill emit the raw findings JSON alongside the report when running evals.)
 
 **2. Score:**
 
@@ -51,7 +51,7 @@ The drop in recall for each lens is its marginal contribution. Use it to prune r
 
 ## Extending the corpus
 
-Add a `corpus/<n>-<lens>-<defect>/` directory with the four files. Keep the planted defect realistic (the kind of thing that actually slips through review), keep `after.ts` short, and make `category` in `expected.json` match the vocabulary in the finding schema in the plugin (`plugins/code-review/skills/code-review/references/finding-schema.md`). Add trap cases (`must_not_find`) that look like defects but are fine — an O(n²) over a bounded constant list, a "tainted" value that never reaches a sink — to keep precision honest.
+Add a `corpus/<n>-<lens>-<defect>/` directory with the four files. Keep the planted defect realistic (the kind of thing that actually slips through review), keep `after.ts` short, and make `category` in `expected.json` match the vocabulary in the finding schema in the plugin (`plugins/smart-review/skills/smart-review/references/finding-schema.md`). Add trap cases (`must_not_find`) that look like defects but are fine — an O(n²) over a bounded constant list, a "tainted" value that never reaches a sink — to keep precision honest.
 
 ## Caveats
 

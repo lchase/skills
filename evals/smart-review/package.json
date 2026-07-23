@@ -1,8 +1,8 @@
 {
-  "name": "code-review-evals",
+  "name": "smart-review-evals",
   "private": true,
   "type": "module",
-  "description": "Eval harness for the code-review skill: planted-defect corpus + recall/precision scorer with lens ablation.",
+  "description": "Eval harness for the smart-review skill: planted-defect corpus + recall/precision scorer with lens ablation.",
   "scripts": {
     "score": "tsx score.ts",
     "list": "tsx score.ts list"

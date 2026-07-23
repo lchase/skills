@@ -1,9 +1,9 @@
 ---
-name: code-review
+name: smart-review
 description: Rigorous multi-lens code review of a diff. Use this whenever the user asks to review code, review a PR or branch, check a diff, do a pre-merge or pre-commit review, hunt for bugs, security issues, performance problems, or design smells in changed code, or asks whether something is ready to merge — even if they never say the words "code review". Runs six specialized review lenses (spec-conformance, correctness, security, performance, design, tests) and merges their findings into one deduplicated, severity-ranked verdict. Offers a fast single-pass mode (min) for tight loops and an orchestrated ensemble mode (max) that fans the lenses out as isolated parallel subagents for high-stakes or pre-merge review. Prefer this over an ad-hoc review any time correctness or shipping safety matters.
 ---
 
-# Code Review
+# Smart Review
 
 ## Why this skill exists
 
@@ -15,11 +15,11 @@ There are three ways to run it:
 
 - **`min`** — one pass, one context, no subagents. Fast and cheap. The 90% case: pre-commit, tight loops, small diffs.
 - **`max`** — spec-gate, then the lenses fan out as isolated parallel subagents, findings merged into one verdict. For PRs, pre-merge, and anything touching sensitive paths.
-- **auto** (plain `/code-review`) — pick `min` or `max` by change size and sensitivity (see Routing).
+- **auto** (plain `/smart-review`) — pick `min` or `max` by change size and sensitivity (see Routing).
 
 ## Routing: choosing min vs max
 
-When invoked as plain `/code-review` (no mode), decide the lane before doing anything else. Escalate to **max** if *any* of these hold; otherwise run **min**:
+When invoked as plain `/smart-review` (no mode), decide the lane before doing anything else. Escalate to **max** if *any* of these hold; otherwise run **min**:
 
 - The diff changes more than ~150 lines or touches more than ~5 files.
 - The diff touches a **sensitive path**: authentication, authorization, session/token handling, cryptography, deserialization, raw SQL or query building, file-system or shell execution, payment or billing, or anything reading/writing PII.
@@ -104,7 +104,7 @@ The orchestrated ensemble. **The top-level agent is the orchestrator.** Because 
 Use this exact structure for the final output in every mode:
 
 ```
-## Code Review — <mode> · <base>...HEAD
+## Smart Review — <mode> · <base>...HEAD
 **Scope**: N files, +X/−Y lines · **Spec**: <found / none>
 **Verdict**: APPROVE | APPROVE WITH NITS | REQUEST_CHANGES
 <one-sentence why, leading with the most important finding>

@@ -35,4 +35,4 @@ Every lens, in every mode, emits findings as objects of this exact shape. The me
 
 Structured, uniform findings are what make the merge possible: you can dedup on `(file, overlapping lines, category)`, count how many lenses independently raised the same `(category, location)`, roll `severity` up into a verdict, and sort structural findings ahead of nits — all mechanically. Free-text reviews can't be merged; they can only be concatenated, which is exactly the pile-of-noise failure mode this skill exists to avoid.
 
-A machine-readable mirror of this schema lives in the eval kit (`evals/code-review/types.ts` at the repo root) for the scorer. Keep the two in sync when you extend the category vocabulary.
+A machine-readable mirror of this schema lives in the eval kit (`evals/smart-review/types.ts` at the repo root) for the scorer. Keep the two in sync when you extend the category vocabulary.
