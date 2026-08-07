@@ -14,6 +14,7 @@ Then the plugin's slash commands are available (namespaced by plugin):
 - `/smart-review:review` — auto (routes to min or max by size + sensitivity)
 - `/smart-review:min` — fast single-pass review
 - `/smart-review:max` — orchestrated ensemble review
+- `/smart-review:pr <PR number or URL>` — reviews a GitHub PR and, after you confirm what to publish, posts the findings as PR comments
 
 The `smart-review` skill also triggers automatically when you ask Claude to review a diff, PR, or branch — you don't have to invoke a command.
 
@@ -37,6 +38,7 @@ Two modes: a fast single pass (`min`) for tight loops, and an orchestrated ensem
 /smart-review:review    # auto — routes to min or max
 /smart-review:min       # fast single pass
 /smart-review:max       # full ensemble, for pre-merge
+/smart-review:pr <PR>   # reviews a GitHub PR, then posts confirmed findings as comments
 ```
  
 It also triggers on its own when you ask Claude to review a diff, PR, or branch. Design and internals: [`plugins/smart-review/`](plugins/smart-review/).

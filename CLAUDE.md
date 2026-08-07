@@ -46,10 +46,11 @@ Adding a new plugin means adding a directory under `plugins/` plus a matching en
 
 The design principle behind this plugin: **the merge is the product, not the lenses.** Six reviewers each checking one thing beats one reviewer checking six things (attention dilution), and one model reviewing alone repeats its own blind spots. Everything here exists to get ensemble recall without ensemble noise.
 
-Three ways to invoke it, routed by `SKILL.md`:
+Four ways to invoke it, routed by `SKILL.md`:
 - `/smart-review:min` — one agent, one context, all six lenses walked in sequence, no subagents. Fast path for small/low-risk diffs.
 - `/smart-review:max` — orchestrated ensemble: spec-gate first (stop early if the diff implements the wrong thing), then the five remaining lenses fan out as **isolated parallel subagents** (`agents/*-reviewer.md`), then a `merge-synthesizer` subagent combines everything into one verdict.
 - `/smart-review:review` (or the skill auto-triggering on "review this diff/PR/branch") — routes to min or max based on diff size (>~150 lines or >~5 files), whether it touches a sensitive path (auth, crypto, SQL, shell/file exec, payments, PII), or an explicit ask for a pre-merge/thorough review.
+- `/smart-review:pr <PR number or URL>` — fetches a GitHub PR's diff via `gh`, runs min/max as above, then gates on explicit user confirmation of what to publish (all findings, P0/P1 only, a custom subset, or none) before posting a summary comment and per-finding inline comments. Never approves, requests changes, or merges — this is I/O glue around the same review logic, not a separate reviewer.
 
 Key structural pieces, all under `plugins/smart-review/skills/smart-review/`:
 - **Lenses are fixed** (`references/lenses/{spec-conformance,correctness,security,performance,design,tests}.md`) — spec-conformance, correctness, security, performance, design, tests. Don't add a seventh lens for a new domain.
