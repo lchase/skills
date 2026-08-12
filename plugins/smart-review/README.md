@@ -17,6 +17,7 @@ Commands are namespaced by the plugin:
 - **`/smart-review:min`** — one pass, one context, no subagents. Fast; for tight loops and small diffs.
 - **`/smart-review:max`** — spec-gate, then lenses fan out as isolated parallel subagents, merged into one verdict. For pre-merge and high-stakes changes.
 - **`/smart-review:pr <PR number or URL>`** — fetches a GitHub PR's diff via `gh`, runs the same min/max review, then shows you the report and asks what to publish (all findings, P0/P1 only, a custom subset, or nothing) before posting a summary comment (and inline comments for confirmed P0/P1s). Never approves, requests changes, or merges.
+- **`/smart-review:pr-comments <PR number or URL>`** — triages a PR's *existing* unresolved review comments (Copilot, human reviewers, etc.): fetches unresolved threads via GraphQL, classifies each as fix/docs/explain/disagree, gates on your approval before editing code, gates again before pushing, then replies to and resolves each addressed thread. Not a review pass — glue around comment threads, not the lenses.
 
 The skill also triggers automatically when you ask Claude to review code, check a diff, or judge whether something is ready to merge — you don't have to run a command. The commands just force a specific mode.
 
