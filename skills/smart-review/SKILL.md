@@ -14,8 +14,10 @@ The value lives in the merge. Running many reviewers without aggregation just pr
 There are three ways to run it:
 
 - **`min`** — one pass, one context, no subagents. Fast and cheap. The 90% case: pre-commit, tight loops, small diffs.
-- **`max`** — spec-gate, then the lenses fan out as isolated parallel subagents, findings merged into one verdict. For PRs, pre-merge, and anything touching sensitive paths.
+- **`max`** — spec-gate, then the lenses run as a decorrelated ensemble (isolated parallel subagents where the harness supports them, otherwise a disciplined sequential walk — see `references/ensemble.md`), findings merged into one verdict. For PRs, pre-merge, and anything touching sensitive paths.
 - **auto** (plain `/smart-review`) — pick `min` or `max` by change size and sensitivity (see Routing).
+
+**Harness support.** The `/smart-review:*` slash commands, the auto-trigger on "review this…", and native parallel subagents for `max` are Claude Code features. On other harnesses (Cursor, Codex, Gemini CLI) this skill loads via the session-start hook and runs the same workflow, with `max` degrading to the sequential ensemble. The lens checklists, finding schema, and merge contract under `references/` are the shared core and behave identically everywhere.
 
 ## Routing: choosing min vs max
 
@@ -84,13 +86,11 @@ One agent, one context, no fan-out.
 
 ## max workflow
 
-The orchestrated ensemble. **The top-level agent is the orchestrator.** Because Claude Code subagents cannot spawn subagents, you cannot delegate orchestration to a "lead reviewer" subagent — fan out from here, then collect.
+The orchestrated ensemble. **The top-level agent is the orchestrator** — subagents cannot spawn subagents, so fan out from here, then collect.
 
 1. Scope the diff and find the spec (Steps 1–2). Note triggered domain checklists.
-2. **Spec-gate first.** Dispatch the `spec-conformance-reviewer` subagent (bundled with this plugin) alone. If it reports the change implements the *wrong thing* (major scope miss, contradicts the spec), **stop** and report that — do not spend the quality lenses reviewing code that has to be rewritten. This is the single cheapest way to save review budget. (Skip the gate only if there is no spec.)
-3. **Fan out the five remaining lenses in parallel, in one batch.** Dispatch the `correctness-reviewer`, `security-reviewer`, `performance-reviewer`, `design-reviewer`, and `tests-reviewer` subagents (bundled with this plugin) as independent tasks. Read each lens's checklist from `references/lenses/` — plus any domain checklist the routing table routes to it — and pass that content into the reviewer's prompt along with the diff and spec. Each subagent receives **only**: the diff, the spec, its own lens checklist, and any routed domain checklist. It must **not** receive the author's session history or the other reviewers' output — that isolation is what keeps their errors decorrelated and what stops a reviewer from being talked into "looks fine". Each returns findings in the canonical schema.
-4. **(Optional, highest-leverage) cross-model.** If your harness can route subagents to different model providers, put different lenses on different models. Same model reviewing alone repeats its own misses; different models have genuinely different blind spots, which is the biggest single lever on the "everyone finds something different" problem. Default (all one model, isolated contexts) still helps; cross-model helps more. See this plugin's README for how to wire per-lens model routing.
-5. **Merge.** Hand all lens reports to the `merge-synthesizer` subagent (bundled with this plugin), or do it here. The synthesizer is the *only* stage that sees everything: it dedups, boosts confidence on findings ≥2 lenses agree on, resolves conflicting recommendations, normalizes and rolls up severity, orders structure-over-nits, caps nits, and emits one verdict. Follow `references/merge-contract.md` exactly.
+2. Run the ensemble per `references/ensemble.md`. That file has the capability check: isolated parallel subagents if this harness supports them (Claude Code dispatches the bundled `agents/*-reviewer.md`), otherwise a sequential lens walk in this context. Both keep the spec-gate and all six lenses.
+3. **Merge.** Apply `references/merge-contract.md` exactly — dedup, agreement-weighting (≥2 lenses agree → confidence + rank boost), conflict resolution, severity rollup, structure-over-nits ordering, nit cap, one verdict. On Claude Code this can go to the `merge-synthesizer` subagent (the only stage that sees everything); elsewhere do it inline.
 
 ## Guardrails
 

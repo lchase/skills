@@ -1,21 +1,30 @@
 # smart-review
 
-A multi-lens code review plugin for Claude Code. Six specialized review lenses run over a diff and their findings are merged into a single deduplicated, severity-ranked verdict. Built on the observation that no single reviewer catches everything: the differentiator here is the **merge**, not any individual lens.
+A multi-lens code review skill. Six specialized review lenses run over a diff and their findings are merged into a single deduplicated, severity-ranked verdict. Built on the observation that no single reviewer catches everything: the differentiator here is the **merge**, not any individual lens.
+
+It ships from one harness-neutral core (`skills/smart-review/`) with a thin manifest per harness. Claude Code gets slash commands and native parallel-subagent `max`; Cursor, Codex, Gemini CLI, and any AGENTS.md agent run the same workflow with `max` as a sequential ensemble.
 
 ## Install
+
+**Claude Code:**
 
 ```
 /plugin marketplace add lchase/skills
 /plugin install smart-review@chase
 ```
 
+**Other harnesses:** point the harness's plugin/extension mechanism at this repo — it reads
+the matching manifest (`.cursor-plugin/`, `.codex-plugin/`, `gemini-extension.json`) or
+`AGENTS.md`, all of which resolve to the same `skills/smart-review/`.
+
 ## Modes
 
-Commands are namespaced by the plugin:
+On Claude Code, commands are namespaced by the plugin (`/smart-review:<mode>`); elsewhere
+the skill loads via hook/AGENTS.md and you just ask for a review.
 
 - **`/smart-review:review`** — auto: picks min or max by change size and sensitivity.
 - **`/smart-review:min`** — one pass, one context, no subagents. Fast; for tight loops and small diffs.
-- **`/smart-review:max`** — spec-gate, then lenses fan out as isolated parallel subagents, merged into one verdict. For pre-merge and high-stakes changes.
+- **`/smart-review:max`** — spec-gate, then the lens ensemble, merged into one verdict. For pre-merge and high-stakes changes. Isolated parallel subagents on Claude Code; a disciplined sequential lens walk on harnesses without subagents (`references/ensemble.md`).
 - **`/smart-review:pr <PR number or URL>`** — fetches a GitHub PR's diff via `gh`, runs the same min/max review, then shows you the report and asks what to publish (all findings, P0/P1 only, a custom subset, or nothing) before posting a summary comment (and inline comments for confirmed P0/P1s). Never approves, requests changes, or merges.
 - **`/smart-review:pr-comments <PR number or URL>`** — triages a PR's *existing* unresolved review comments (Copilot, human reviewers, etc.): fetches unresolved threads via GraphQL, classifies each as fix/docs/explain/disagree, gates on your approval before editing code, gates again before pushing, then replies to and resolves each addressed thread. Not a review pass — glue around comment threads, not the lenses.
 
@@ -27,19 +36,23 @@ The skill also triggers automatically when you ask Claude to review code, check 
 /smart-review:review ─► router (size + sensitivity) ─► min | max
 
 min :  scope diff ─► all 6 lenses in ONE context ─► merge ─► verdict
-max :  scope diff ─► SPEC-GATE ─► fan out 5 reviewer subagents,
-        isolated + parallel (+ optional cross-model) ─► merge ─► verdict
+max :  scope diff ─► SPEC-GATE ─► lens ensemble ─► merge ─► verdict
+        ensemble = isolated parallel subagents (Claude Code, + optional cross-model)
+                   OR sequential lens walk (harnesses without subagents)
 ```
 
-Component layout inside this plugin:
+Component layout:
 
-- **The skill** (`skills/smart-review/SKILL.md`) — the brain: routing, the min/max workflows, and the report format. Auto-triggers and orchestrates.
-- **Lenses** (`skills/smart-review/references/lenses/`) — the six review perspectives: spec-conformance, correctness, security, performance, design, tests. Fixed set.
-- **Domain checklists** (`skills/smart-review/references/domain/`) — database, TypeScript/Node, API, frontend/a11y. Injected into the relevant lens when the diff touches that domain (see `references/checklist-routing.md`). Add depth by adding a checklist + a routing row, not a new reviewer.
-- **Finding schema** (`skills/smart-review/references/finding-schema.md`) — the one shape every lens emits, so findings can be merged mechanically.
-- **Merge contract** (`skills/smart-review/references/merge-contract.md`) — dedup, agreement-weighting, conflict resolution, severity rollup, structure-over-nits, nit cap. This is the product.
-- **Reviewer subagents** (`agents/`) — the isolated reviewers `max` fans out (`*-reviewer`), plus `merge-synthesizer`. Registered as read-only subagents (`tools: Read, Grep, Glob`); each runs in its own context, which is what keeps their findings decorrelated.
-- **Commands** (`commands/`) — the four entry points above.
+- **The shared core** (`skills/smart-review/`) — harness-neutral. Every manifest points here.
+  - **`SKILL.md`** — routing, the min/max workflows, the report format.
+  - **`references/lenses/`** — the six review perspectives: spec-conformance, correctness, security, performance, design, tests. Fixed set.
+  - **`references/domain/`** — database, TypeScript/Node, API, frontend/a11y. Injected into the relevant lens when the diff touches that domain (see `references/checklist-routing.md`). Add depth by adding a checklist + a routing row, not a new reviewer.
+  - **`references/finding-schema.md`** — the one shape every lens emits, so findings can be merged mechanically.
+  - **`references/merge-contract.md`** — dedup, agreement-weighting, conflict resolution, severity rollup, structure-over-nits, nit cap. This is the product.
+  - **`references/ensemble.md`** — the max fan-out protocol and the harness capability check.
+- **Reviewer subagents** (`agents/`, Claude Code only) — the isolated reviewers `max` fans out (`*-reviewer`), plus `merge-synthesizer`. Read-only (`tools: Read, Grep, Glob`); each runs in its own context, which keeps findings decorrelated. Each mirrors a `references/lenses/*.md` checklist — kept in sync, checked by `scripts/validate-adapters.sh`.
+- **Commands** (`commands/`, Claude Code only) — the entry points above.
+- **Hooks** (`hooks/`) — a session-start bootstrap that nudges harnesses without description-based skill triggering to load the skill on review requests.
 
 ## Key design choices
 

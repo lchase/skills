@@ -51,7 +51,7 @@ The drop in recall for each lens is its marginal contribution. Use it to prune r
 
 ## Extending the corpus
 
-Add a `corpus/<n>-<lens>-<defect>/` directory with the four files. Keep the planted defect realistic (the kind of thing that actually slips through review), keep `after.ts` short, and make `category` in `expected.json` match the vocabulary in the finding schema in the plugin (`plugins/smart-review/skills/smart-review/references/finding-schema.md`). Add trap cases (`must_not_find`) that look like defects but are fine — an O(n²) over a bounded constant list, a "tainted" value that never reaches a sink — to keep precision honest.
+Add a `corpus/<n>-<lens>-<defect>/` directory with the four files. Keep the planted defect realistic (the kind of thing that actually slips through review), keep `after.ts` short, and make `category` in `expected.json` match the vocabulary in the finding schema in the plugin (`skills/smart-review/references/finding-schema.md`). Add trap cases (`must_not_find`) that look like defects but are fine — an O(n²) over a bounded constant list, a "tainted" value that never reaches a sink — to keep precision honest.
 
 ## Caveats
 

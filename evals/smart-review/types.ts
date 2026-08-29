@@ -1,4 +1,4 @@
-// Machine-readable mirror of the finding schema at plugins/smart-review/skills/smart-review/references/finding-schema.md, plus the eval
+// Machine-readable mirror of the finding schema at skills/smart-review/references/finding-schema.md, plus the eval
 // corpus types. Keep the Lens union and category expectations in sync with the
 // schema doc when you extend the vocabulary.
 
