@@ -31,6 +31,10 @@ Lenses will sometimes prescribe opposite moves (design says "extract a helper", 
 - If a call is needed, the higher-severity concern wins the framing (a P1 correctness/security concern outranks a P3 style preference). Security and correctness generally win ties over style and micro-perf.
 - Put unresolved judgement calls in the report's "Conflicts / judgement calls" section, with both sides, so the author decides with eyes open.
 
+## 3b. Validate before it ships
+
+Agreement and dedup tell you findings are *consistent*; they don't tell you a finding is *true*. Before rolling up severity, run `references/validation.md` on every P0/P1 and on any P2/P3 that step 2 promoted into the visible tiers: re-read the cited code fresh, check whether it predates this diff, check whether it's already handled elsewhere, and check whether it's an intentional pattern rather than a bug. Findings that don't survive get downgraded or discarded per that file's rules — discarded findings still get one line in the report's `### Discarded` note, never a silent drop.
+
 ## 4. Normalize and roll up severity
 
 Every finding is already P0–P3 (severity.md). Compute the verdict from the surviving set:

@@ -11,6 +11,12 @@
 - **Test readability.** Tests read as a specification of intended behavior. Some duplication in tests is fine and often better than a clever abstraction that hides what is being checked — do not over-DRY tests.
 - **Level.** Is the behavior tested at the lowest level that captures it? A unit test for unit logic, an integration test where the risk is in the seams. Not everything needs an end-to-end test.
 
+## Negative space
+
+- Is there an existing test asserting the *old* behavior that the diff should have updated but didn't — so the suite is green while actually testing the wrong thing now?
+- Does the change alter a shared contract (a response shape, an event payload) with no test anywhere checking a consumer of that contract, because the consumer lives in a different file/service the diff never opened?
+- For a fix: does a regression test exist that actually fails on the pre-fix code, or only a test that happens to pass either way?
+
 ## Output
 
 Canonical schema, `lens: tests`. Tie each finding to the specific behavior left unprotected: "the empty-cart branch added at charge.ts:40 has no test; it would ship broken and the suite would stay green."

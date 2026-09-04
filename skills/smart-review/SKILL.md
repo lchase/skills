@@ -80,7 +80,7 @@ One agent, one context, no fan-out.
 1. Scope the diff (Step 1) and find the spec (Step 2).
 2. From `references/checklist-routing.md`, note which domain checklists the diff triggers.
 3. Walk all six lenses in sequence in this one context. For each, read its checklist file, plus any domain checklist routed to it, and record findings in the canonical schema. Give a quick spec-conformance check inline — full gating is a `max` feature.
-4. Apply the merge rules from `references/merge-contract.md` yourself (dedup, severity rollup, structural-over-nits ordering, nit cap) and emit the report in the format at the bottom of this file.
+4. Apply the merge rules from `references/merge-contract.md` yourself (dedup, severity rollup, structural-over-nits ordering, nit cap) — including the validation pass (`references/validation.md`) on P0/P1s and promoted findings before they ship — and emit the report in the format at the bottom of this file.
 
 `min` trades the ensemble's decorrelation for speed. That is the right trade for small, low-risk diffs; it is the wrong trade before a merge that touches something dangerous.
 
@@ -90,7 +90,7 @@ The orchestrated ensemble. **The top-level agent is the orchestrator** — subag
 
 1. Scope the diff and find the spec (Steps 1–2). Note triggered domain checklists.
 2. Run the ensemble per `references/ensemble.md`. That file has the capability check: isolated parallel subagents if this harness supports them (Claude Code dispatches the bundled `agents/*-reviewer.md`), otherwise a sequential lens walk in this context. Both keep the spec-gate and all six lenses.
-3. **Merge.** Apply `references/merge-contract.md` exactly — dedup, agreement-weighting (≥2 lenses agree → confidence + rank boost), conflict resolution, severity rollup, structure-over-nits ordering, nit cap, one verdict. On Claude Code this can go to the `merge-synthesizer` subagent (the only stage that sees everything); elsewhere do it inline.
+3. **Merge.** Apply `references/merge-contract.md` exactly — dedup, agreement-weighting (≥2 lenses agree → confidence + rank boost), conflict resolution, **validation** (`references/validation.md` — re-check P0/P1s and promoted findings against the actual code before they ship, discard or downgrade what doesn't survive), severity rollup, structure-over-nits ordering, nit cap, one verdict. On Claude Code this can go to the `merge-synthesizer` subagent (the only stage that sees everything); elsewhere do it inline.
 
 ## Guardrails
 
@@ -117,6 +117,9 @@ Use this exact structure for the final output in every mode:
 
 ### Conflicts / judgement calls
 <where lenses disagreed, both sides, and the call made>
+
+### Discarded
+<findings that failed validation, one line each: file:line — claim — discarded: reason. Omit this section if nothing was discarded.>
 
 ### Strengths
 <what is genuinely well done>

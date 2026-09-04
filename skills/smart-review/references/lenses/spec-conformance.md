@@ -12,6 +12,11 @@ You need the spec (issue, PRD, ticket, or the user's stated intent). If there is
 - **Silent behavior changes.** A refactor or "small fix" that changes an observable behavior (an API response shape, a default, an error code, ordering) without the spec calling for it is `silent-behavior-change`. These are the ones that break callers quietly.
 - **Deviations that are actually improvements.** If the code sensibly diverges from an underspecified or wrong spec, say so and call it justified rather than dinging it — but name the divergence so it is a decision, not an accident.
 
+## Negative space
+
+- Does the spec imply a behavior for an old client/consumer/caller that the diff doesn't mention at all — is backward compatibility an unstated requirement here, and does the diff honor or silently break it?
+- Are there acceptance criteria that are *implicit* in the spec's framing (performance, error UX, a rollback path) rather than explicitly listed, that the diff has no code for at all?
+
 ## Gate rule (max)
 
 If the change misses major scope or contradicts the spec such that it must be substantially rewritten, report that and **stop the review there**. There is no point spending correctness/security/perf effort on code that is going to change shape. If the misses are localized, report them and let the other lenses proceed.
