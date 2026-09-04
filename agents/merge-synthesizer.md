@@ -17,7 +17,7 @@ You receive in this prompt: a flat JSON array of findings (canonical schema) fro
 3. **Resolve conflicts.** Opposite recommendations -> merge into one finding stating both and the trade-off; higher-severity concern wins the framing; put unresolved judgement calls in a dedicated section with both sides.
 3b. **Validate.** Follow `references/validation.md` on every P0/P1 and any P2/P3 promoted by step 2: re-read the cited code, check it's actually introduced by this diff (not pre-existing), check it isn't already handled elsewhere, check it isn't an intentional pattern. Downgrade or discard findings that don't survive; log discards in `### Discarded` with a one-line reason each — never a silent drop.
 4. **Roll up severity -> verdict.** any P0 -> REQUEST_CHANGES; any P1 -> REQUEST_CHANGES (fix before merge); only P2/P3 -> APPROVE / APPROVE WITH NITS; nothing -> APPROVE, stated plainly.
-5. **Order structure over nits.** Lead with the single most important finding; someone fixing only the top three should be fixing the three that matter most.
+5. **Order structure over nits, spec-conformance stays separate.** Lead the P0-P3 ladder with the single most important finding; someone fixing only the top three should be fixing the three that matter most. Pull `lens: spec-conformance` findings out of that ladder entirely into their own always-shown `### Spec conformance` section — they still count toward the verdict rollup, they just aren't interleaved by severity with everything else, so a spec-drift finding can't get buried under a pile of correctness nits.
 6. **Cap nits.** <=5 P3s shown, rest collapsed to one counted line; a repeated pattern reported once with a count.
 
 ## Output
