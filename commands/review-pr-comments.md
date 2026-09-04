@@ -30,4 +30,4 @@ Address unresolved review comments (e.g. GitHub Copilot, human reviewers) on PR 
    - Only resolve threads that got a reply in this run — never resolve a thread silently.
 8. Summarize: threads fixed, threads explained/disagreed (with reasons), commit SHA, and any threads left unresolved (e.g. user asked to defer).
 
-Do not approve, request changes, or merge the PR — this replies to and resolves comment threads only, same boundary as `/smart-review:pr`.
+Do not approve, request changes, or merge the PR — this replies to and resolves comment threads only, same boundary as `/smart-review:add-pr-review`.

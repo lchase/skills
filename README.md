@@ -37,8 +37,8 @@ sequential walk — see [`references/ensemble.md`](skills/smart-review/reference
 - `/smart-review:review` — auto (routes to min or max by size + sensitivity)
 - `/smart-review:min` — fast single-pass review
 - `/smart-review:max` — orchestrated ensemble review
-- `/smart-review:pr <PR number or URL>` — reviews a GitHub PR and, after you confirm what to publish, posts the findings as PR comments
-- `/smart-review:pr-comments <PR number or URL>` — triages a PR's existing unresolved review comments, fixes or explains each after your approval, replies, and resolves the thread
+- `/smart-review:add-pr-review <PR number or URL>` — reviews a GitHub PR and, after you confirm what to publish, posts the findings as PR comments
+- `/smart-review:review-pr-comments <PR number or URL>` — triages a PR's existing unresolved review comments, fixes or explains each after your approval, replies, and resolves the thread
 
 The skill also triggers automatically when you ask Claude to review a diff, PR, or branch.
 
