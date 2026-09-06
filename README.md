@@ -12,6 +12,41 @@ development workflows.
 Each plugin is independent — install only what you want. `@lchase` is the marketplace name
 (from `.claude-plugin/marketplace.json`), not the GitHub slug.
 
+### Updating
+
+New versions ship whenever the `version` string in a plugin's manifest changes. Claude Code
+**refreshes marketplaces in the background by default**, so you normally pick up updates
+without doing anything. To pull them right now:
+
+```
+/plugin marketplace update lchase      # refresh this marketplace's manifest
+/plugin update smart-review@lchase     # apply a pending update to one plugin
+/plugin update tldraw@lchase
+```
+
+`/plugin marketplace update` (no name) refreshes every marketplace. From a shell:
+`claude plugin marketplace update lchase` and `claude plugin update <plugin>@lchase`.
+
+### Reinstalling
+
+If a plugin gets into a bad state (stale cached script, half-applied update), do a clean
+reinstall:
+
+```
+/plugin uninstall tldraw
+/plugin marketplace update lchase
+/plugin install tldraw@lchase
+```
+
+Nuclear option — re-register the whole marketplace:
+
+```
+/plugin marketplace remove lchase
+/plugin marketplace add lchase/skills
+/plugin install smart-review@lchase
+/plugin install tldraw@lchase
+```
+
 ### Migrating from the old layout
 
 Before this repo became a multi-plugin marketplace it published one plugin from the repo
@@ -129,6 +164,12 @@ claude plugin validate .                                # marketplace + both plu
 ./plugins/smart-review/scripts/validate-adapters.sh      # smart-review's per-harness manifests
 ```
 
-Pull changes with `/plugin marketplace update`. smart-review's version is pinned across its
-manifests — bump them together with `./plugins/smart-review/scripts/bump-version.sh <version>`.
-The tldraw plugin versions independently (edit `plugins/tldraw/.claude-plugin/plugin.json`).
+**Releasing:** users only get an update when a plugin's `version` string changes, so bump
+it on every user-facing change and push to `main`.
+
+- smart-review — version is pinned across all its manifests; bump them together with
+  `./plugins/smart-review/scripts/bump-version.sh <version>`.
+- tldraw — versions independently; edit `plugins/tldraw/.claude-plugin/plugin.json`.
+
+Once pushed, installed clients pick it up on their next background marketplace refresh, or
+immediately with `/plugin marketplace update lchase`.
