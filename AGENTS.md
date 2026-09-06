@@ -3,9 +3,9 @@
 This repo is the **`lchase`** marketplace of Claude Code plugins. The one relevant to
 non-Claude agents is **smart-review** (`plugins/smart-review/skills/smart-review/SKILL.md`).
 
-Before any code-review-shaped task — reviewing a diff, PR, branch, or uncommitted
+Before any code-review-shaped task (reviewing a diff, PR, branch, or uncommitted
 changes; a pre-merge or pre-commit check; hunting for bugs, security, performance, or
-design problems in changed code — read `plugins/smart-review/skills/smart-review/SKILL.md`
+design problems in changed code), read `plugins/smart-review/skills/smart-review/SKILL.md`
 and follow it.
 
 The shared core is under `plugins/smart-review/skills/smart-review/references/`: the six

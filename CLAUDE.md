@@ -2,26 +2,35 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Writing style
+
+Do not use em-dashes (`—`) or en-dashes (`–`) in prose, anywhere: markdown docs, skill and
+agent files, code comments, commit messages, PR descriptions. Use a comma, a colon,
+parentheses, or two sentences instead. The em-dash is one of the strongest tells that text
+was written by an LLM, and this repo ships smart-review and pairs with unslop, so its own
+writing should not read as machine-generated. A hyphen in a compound word (`spec-gate`,
+`pre-merge`) is fine; it is the sentence-punctuation dash that is banned.
+
 ## What this repo is
 
 The **`lchase` Claude Code marketplace** (`.claude-plugin/marketplace.json`), a small
 package of independently-installable plugins:
 
-1. **smart-review** (`plugins/smart-review/`) — the flagship. A code-review skill packaged
+1. **smart-review** (`plugins/smart-review/`) is the flagship: a code-review skill packaged
    for multiple coding harnesses from one shared core under
    `plugins/smart-review/skills/smart-review/`. Each harness gets a thin manifest pointing at
-   that same directory — no skill content is copied or forked. Claude Code additionally gets
-   slash commands and native parallel-subagent `max`; other harnesses run the same workflow
-   with `max` degraded to a sequential ensemble. The non-Claude entry points
-   (`AGENTS.md`, `gemini-extension.json` + `GEMINI.md`) stay at the **repo root** because
+   that same directory, so no skill content is copied or forked. Claude Code additionally
+   gets slash commands and native parallel-subagent `max`; other harnesses run the same
+   workflow with `max` degraded to a sequential ensemble. The non-Claude entry points
+   (`AGENTS.md`, `gemini-extension.json` plus `GEMINI.md`) stay at the **repo root** because
    those conventions are root-scoped; the Cursor and Codex manifests live inside
    `plugins/smart-review/`.
 
-2. **tldraw** (`plugins/tldraw/`) — Claude Code only, unrelated to smart-review. The
+2. **tldraw** (`plugins/tldraw/`) is Claude Code only and unrelated to smart-review. The
    `/tldraw:diagram` skill turns a natural-language diagram description into an editable
    `.tldr` document plus a rendered PNG/SVG. `plugins/tldraw/skills/diagram/` holds SKILL.md,
-   `scripts/build-tldr.mjs` (spec → `.tldr`, then shells out to `@kitschpatrol/tldraw-cli`
-   for images), and `references/tldr-format.md`. Its own version in
+   `scripts/build-tldr.mjs` (spec to `.tldr`, then shells out to `@kitschpatrol/tldraw-cli`
+   for images), and `references/tldr-format.md`. It carries its own version in
    `plugins/tldraw/.claude-plugin/plugin.json`, independent of smart-review.
 
 There is no application build. smart-review is markdown plus a small TypeScript eval
@@ -29,11 +38,11 @@ harness; tldraw is markdown plus one Node script. **Most of this file is about s
 
 ## Commands
 
-Validate before pushing (no CI configured — do this manually):
+Validate before pushing (no CI configured, so do this manually):
 
 ```bash
 claude plugin validate .                                 # marketplace + both plugins
-./plugins/smart-review/scripts/validate-adapters.sh       # smart-review manifests: JSON, version match, resolvable paths, agent↔lens sync
+./plugins/smart-review/scripts/validate-adapters.sh       # smart-review manifests: JSON, version match, resolvable paths, agent-lens sync
 ```
 
 Bump smart-review's version across all its manifests at once (does not touch tldraw):
@@ -42,10 +51,10 @@ Bump smart-review's version across all its manifests at once (does not touch tld
 ./plugins/smart-review/scripts/bump-version.sh 0.5.0
 ```
 
-The tldraw plugin versions independently — edit `plugins/tldraw/.claude-plugin/plugin.json`
+The tldraw plugin versions independently. Edit `plugins/tldraw/.claude-plugin/plugin.json`
 by hand.
 
-Eval harness (`plugins/smart-review/evals/`, Node 18+, dev-only — excluded from the packaged plugin):
+Eval harness (`plugins/smart-review/evals/`, Node 18+, dev-only, excluded from the packaged plugin):
 
 ```bash
 cd plugins/smart-review/evals && npm install
@@ -55,7 +64,7 @@ npm run score -- --drop security    # ablation: recall with one lens removed
 npm run score -- --window 8         # widen line-match tolerance (default 5)
 ```
 
-There is no automated "run the reviewer" step — producing `corpus/<case>/actual.json` (the
+There is no automated "run the reviewer" step. Producing `corpus/<case>/actual.json` (the
 input to `npm run score`) means actually invoking the `smart-review` skill on that case's
 `after.ts`/`meta.json` inside a harness and saving its findings JSON. `score.ts` reads
 `corpus/<case>/{meta,expected,actual}.json` and matches findings on `(category, file, line±window)`.
@@ -67,9 +76,9 @@ input to `npm run score`) means actually invoking the `smart-review` skill on th
 AGENTS.md                            # repo-level agent pointer (root-scoped convention) -> smart-review
 gemini-extension.json + GEMINI.md    # Gemini CLI installs the repo as an extension -> smart-review
 
-plugins/smart-review/                # PLUGIN 1 — multi-harness code review
+plugins/smart-review/                # PLUGIN 1, multi-harness code review
   .claude-plugin/plugin.json         # Claude Code manifest (skills/agents/commands/hooks auto-discovered under here)
-  skills/smart-review/               # THE shared core — harness-neutral, one copy
+  skills/smart-review/               # THE shared core, harness-neutral, one copy
     SKILL.md                         # routing + workflow + output format
     references/
       lenses/{spec-conformance,correctness,security,performance,design,tests}.md
@@ -80,9 +89,9 @@ plugins/smart-review/                # PLUGIN 1 — multi-harness code review
       severity.md                    # P0-P3 definitions
       ensemble.md                    # the max fan-out protocol + harness capability check
       validation.md                  # validator pass + negative-space checks
-  agents/*-reviewer.md               # Claude Code ONLY — the subagents max dispatches in the isolated variant
-  agents/merge-synthesizer.md        # Claude Code ONLY — the merge stage
-  commands/*.md                      # Claude Code ONLY — /smart-review:{min,max,review,add-pr-review,review-pr-comments}
+  agents/*-reviewer.md               # Claude Code ONLY, the subagents max dispatches in the isolated variant
+  agents/merge-synthesizer.md        # Claude Code ONLY, the merge stage
+  commands/*.md                      # Claude Code ONLY, /smart-review:{min,max,review,add-pr-review,review-pr-comments}
   hooks/{session-start,hooks.json,hooks-cursor.json}   # bootstrap nudge for harnesses without description-triggering
   .cursor-plugin/plugin.json         # Cursor manifest -> ./skills/, ./hooks/hooks-cursor.json
   .codex-plugin/plugin.json          # Codex manifest -> ./skills/
@@ -90,7 +99,7 @@ plugins/smart-review/                # PLUGIN 1 — multi-harness code review
   evals/                             # dev-only eval kit; excluded from what installers pull
   SMART-REVIEW.md                    # the design writeup
 
-plugins/tldraw/                      # PLUGIN 2 — Claude Code only, self-contained
+plugins/tldraw/                      # PLUGIN 2, Claude Code only, self-contained
   .claude-plugin/plugin.json         # own manifest, own version
   skills/diagram/
     SKILL.md                         # node/edge spec -> auto-layout -> .tldr + image
@@ -106,53 +115,54 @@ model reviewing alone repeats its own blind spots. Everything here exists to get
 recall without ensemble noise.
 
 Modes, routed by `SKILL.md`:
-- **`min`** — one context, all six lenses walked in sequence, no fan-out. Fast path for
+- **`min`**: one context, all six lenses walked in sequence, no fan-out. Fast path for
   small/low-risk diffs. The 90% case.
-- **`max`** — spec-gate first (stop early if the diff implements the wrong thing), then the
-  ensemble per `references/ensemble.md`: **isolated parallel subagents** where the harness
-  supports them (Claude Code dispatches `agents/*-reviewer.md`), otherwise a disciplined
-  **sequential lens walk**. Then the merge into one verdict.
-- **auto** (plain `/smart-review` or the skill auto-triggering) — routes to min or max by
+- **`max`**: spec-gate first (stop early if the diff implements the wrong thing), then the
+  ensemble per `references/ensemble.md`. That means **isolated parallel subagents** where the
+  harness supports them (Claude Code dispatches `agents/*-reviewer.md`), otherwise a
+  disciplined **sequential lens walk**. Then the merge into one verdict.
+- **auto** (plain `/smart-review` or the skill auto-triggering): routes to min or max by
   diff size (>~150 lines or >~5 files), sensitive paths (auth, crypto, SQL, shell/file
   exec, payments, PII), or an explicit pre-merge/thorough ask.
-- **`/smart-review:add-pr-review <PR>`** (Claude Code) — fetches a PR diff via `gh`, runs min/max, then
-  gates on explicit user confirmation of what to publish before posting comments. Never
-  approves/requests-changes/merges.
-- **`/smart-review:review-pr-comments <PR>`** (Claude Code) — triages a PR's *existing* unresolved
-  review comments via GraphQL, classifies each fix/docs/explain/disagree, gates on approval
-  before editing and before pushing, then replies and resolves each thread. Not a review pass.
+- **`/smart-review:add-pr-review <PR>`** (Claude Code): fetches a PR diff via `gh`, runs
+  min/max, then gates on explicit user confirmation of what to publish before posting
+  comments. Never approves/requests-changes/merges.
+- **`/smart-review:review-pr-comments <PR>`** (Claude Code): triages a PR's *existing*
+  unresolved review comments via GraphQL, classifies each fix/docs/explain/disagree, gates
+  on approval before editing and before pushing, then replies and resolves each thread. Not
+  a review pass.
 
 Key structural pieces, all under `skills/smart-review/references/`:
-- **Lenses are fixed** — spec-conformance, correctness, security, performance, design, tests.
+- **Lenses are fixed**: spec-conformance, correctness, security, performance, design, tests.
   Don't add a seventh lens for a new domain.
 - **Domain depth rides in as checklists** (`domain/*.md`), injected into whichever lens
-  applies per `checklist-routing.md`. Extending coverage means a new checklist + a routing
-  row, not a new reviewer — this keeps `max`'s cost (5 parallel reviewers) fixed as coverage grows.
-- **`finding-schema.md`** — the one shape every lens must emit
+  applies per `checklist-routing.md`. Extending coverage means a new checklist plus a routing
+  row, not a new reviewer. That keeps `max`'s cost (5 parallel reviewers) fixed as coverage grows.
+- **`finding-schema.md`** is the one shape every lens must emit
   (`{file, line_start, line_end, lens, category, severity, title, why, proposed_move, confidence}`).
   The merge operates mechanically on these fields.
-- **`merge-contract.md`** — dedup by `(category, file, line-overlap-within-3)`,
-  agreement-weighting (≥2 lenses agree → confidence + rank bump), conflict resolution
+- **`merge-contract.md`**: dedup by `(category, file, line-overlap-within-3)`,
+  agreement-weighting (≥2 lenses agree gives a confidence + rank bump), conflict resolution
   (surface both sides), severity rollup to a verdict, hard nit cap (~5 P3s shown).
-- **`ensemble.md`** — the max fan-out protocol and the harness capability check that picks
+- **`ensemble.md`**: the max fan-out protocol and the harness capability check that picks
   isolated-parallel vs sequential.
 - **`agents/*-reviewer.md`** (Claude Code) are the isolated-variant subagents, registered
-  read-only. Each receives *only* the diff, spec, and its lens (+ routed domain) checklist —
+  read-only. Each receives *only* the diff, spec, and its lens (plus routed domain) checklist,
   never the author's session or other reviewers' output; that isolation decorrelates their
   errors. `merge-synthesizer` is the only stage that sees everything. Cross-model routing
   (per-agent frontmatter `model:`) is the highest-leverage lever for catching more distinct
   issues. **Each reviewer agent is a Claude Code packaging of a `references/lenses/*.md`
-  checklist — keep the two in sync;** `validate-adapters.sh` checks the reference link exists.
+  checklist, so keep the two in sync;** `validate-adapters.sh` checks the reference link exists.
 
 Because subagents cannot spawn subagents, the **top-level agent is always the orchestrator**
-in `max` — there is no "lead reviewer" subagent doing the fan-out.
+in `max`. There is no "lead reviewer" subagent doing the fan-out.
 
 ## Working on this repo
 
 Paths below are relative to `plugins/smart-review/` unless noted. The tldraw plugin is
-fully self-contained under `plugins/tldraw/` — its SKILL.md and `references/tldr-format.md`
-are the source of truth (the `.tldr` format constraints there — id charset, fractional
-index keys, `geo` enum — were hard-won; keep them). Test a tldraw change by running
+fully self-contained under `plugins/tldraw/`; its SKILL.md and `references/tldr-format.md`
+are the source of truth (the `.tldr` format constraints there, id charset, fractional
+index keys, `geo` enum, were hard-won, so keep them). Test a tldraw change by running
 `scripts/build-tldr.mjs` on a spec and opening the `.tldr`.
 
 - A change to a lens checklist, the finding schema, the merge contract, or the ensemble
@@ -160,10 +170,10 @@ index keys, `geo` enum — were hard-won; keep them). Test a tldraw change by ru
   the same references; the Claude Code reviewer agents mirror the lens files). After editing
   a shared reference, check `SKILL.md`'s workflow and the matching `agents/*-reviewer.md`
   both still make sense.
-- Adding harness support = a new manifest pointing at `./skills/` + (if the harness lacks
-  description-triggering) a hooks wrapper. Never fork skill content.
+- Adding harness support means a new manifest pointing at `./skills/` plus (if the harness
+  lacks description-triggering) a hooks wrapper. Never fork skill content.
 - Bump the version with `scripts/bump-version.sh` so all smart-review manifests stay in
   lockstep (it does not touch the tldraw plugin).
 - Eval corpus cases (`evals/corpus/<n>-<lens>-<defect>/`): the `category` in
-  `expected.json` must match the vocabulary fixed by `finding-schema.md` — scoring matches
-  on it exactly.
+  `expected.json` must match the vocabulary fixed by `finding-schema.md`, since scoring
+  matches on it exactly.

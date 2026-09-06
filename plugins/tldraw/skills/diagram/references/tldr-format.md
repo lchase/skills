@@ -25,8 +25,8 @@ Only three record types, all at page scope:
 | `page`     | `page:page`          | one, `index: "a1"` |
 | `shape`    | `shape:<21 chars>`   | the geo boxes and the arrows |
 
-Everything else (instance, camera, pointer, instance_page_state, presence) is session scope
-— tldraw recreates it on load, so it's omitted.
+Everything else (instance, camera, pointer, instance_page_state, presence) is session scope,
+which tldraw recreates on load, so it's omitted.
 
 ### geo shape (a box)
 
@@ -66,8 +66,8 @@ current rich-text representation on load. Do not pre-convert it.
 
 Arrows connect to shapes via **inline bindings** in `start` / `end` (the v1 style). With
 `isPrecise: false` and a centre `normalizedAnchor`, tldraw computes the actual edge
-attachment point and routes the line — the arrow's own `x`/`y` are ignored for bound
-endpoints. tldraw's migration turns these inline bindings into separate `binding:` records.
+attachment point and routes the line (the arrow's own `x`/`y` are ignored for bound
+endpoints). tldraw's migration turns these inline bindings into separate `binding:` records.
 
 For an unbound endpoint use `{ "type": "point", "x": <num>, "y": <num> }` instead.
 
@@ -81,7 +81,7 @@ These all surface as the opaque error `Couldn't parse tldr file: invalidRecords`
 2. **Fractional index keys** (`index`) must be well-formed: `a` followed by base62 digits
    (`a1`…`az`), then `b` + two digits (`b10`…), etc. `"b1"` is malformed. Keys must also be
    strictly increasing in string order across the page's shapes.
-3. **`geo` must be a known value** — see the list in `SKILL.md`. Notably there is **no
+3. **`geo` must be a known value** (see the list in `SKILL.md`). Notably there is **no
    `cylinder`**. The script whitelists and falls back to `rectangle`.
 4. `color` / `labelColor` must be from the tldraw palette; arbitrary hex is rejected.
 
@@ -90,8 +90,8 @@ These all surface as the opaque error `Couldn't parse tldr file: invalidRecords`
 `build-tldr.mjs --formats=png,svg` shells out to
 [`@kitschpatrol/tldraw-cli`](https://github.com/kitschpatrol/tldraw-cli), which loads the
 `.tldr` into a headless-Chromium tldraw instance and triggers its native export. This is the
-only reliable headless PNG path — tldraw's own `editor.toImage()` / `getSvgString()` need a
-live browser editor. First run pulls Chromium via puppeteer (cached after).
+only reliable headless PNG path, because tldraw's own `editor.toImage()` / `getSvgString()`
+need a live browser editor. First run pulls Chromium via puppeteer (cached after).
 
 CLI directly, if needed:
 
