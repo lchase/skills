@@ -14,7 +14,7 @@ files=(
   .claude-plugin/plugin.json
   .cursor-plugin/plugin.json
   .codex-plugin/plugin.json
-  gemini-extension.json
+  ../../gemini-extension.json
 )
 
 for f in "${files[@]}"; do

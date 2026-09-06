@@ -4,36 +4,51 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A single skill — **smart-review** — packaged for multiple coding harnesses from one shared core.
+The **`lchase` Claude Code marketplace** (`.claude-plugin/marketplace.json`), a small
+package of independently-installable plugins:
 
-The core is harness-neutral markdown under `skills/smart-review/`. Each harness gets a thin
-manifest (`.claude-plugin/`, `.cursor-plugin/`, `.codex-plugin/`, `gemini-extension.json`)
-that points at that same `skills/` directory — no skill content is copied or forked. Claude
-Code additionally gets slash commands and native parallel-subagent `max`; other harnesses run
-the same workflow with `max` degraded to a sequential ensemble.
+1. **smart-review** (`plugins/smart-review/`) — the flagship. A code-review skill packaged
+   for multiple coding harnesses from one shared core under
+   `plugins/smart-review/skills/smart-review/`. Each harness gets a thin manifest pointing at
+   that same directory — no skill content is copied or forked. Claude Code additionally gets
+   slash commands and native parallel-subagent `max`; other harnesses run the same workflow
+   with `max` degraded to a sequential ensemble. The non-Claude entry points
+   (`AGENTS.md`, `gemini-extension.json` + `GEMINI.md`) stay at the **repo root** because
+   those conventions are root-scoped; the Cursor and Codex manifests live inside
+   `plugins/smart-review/`.
 
-There is no application build. The product is markdown plus a small TypeScript eval harness
-that scores the reviewer empirically.
+2. **tldraw** (`plugins/tldraw/`) — Claude Code only, unrelated to smart-review. The
+   `/tldraw:diagram` skill turns a natural-language diagram description into an editable
+   `.tldr` document plus a rendered PNG/SVG. `plugins/tldraw/skills/diagram/` holds SKILL.md,
+   `scripts/build-tldr.mjs` (spec → `.tldr`, then shells out to `@kitschpatrol/tldraw-cli`
+   for images), and `references/tldr-format.md`. Its own version in
+   `plugins/tldraw/.claude-plugin/plugin.json`, independent of smart-review.
+
+There is no application build. smart-review is markdown plus a small TypeScript eval
+harness; tldraw is markdown plus one Node script. **Most of this file is about smart-review.**
 
 ## Commands
 
 Validate before pushing (no CI configured — do this manually):
 
 ```bash
-claude plugin validate .            # Claude Code plugin + marketplace manifest
-./scripts/validate-adapters.sh      # every manifest: valid JSON, matching version, resolvable paths, agent↔lens sync
+claude plugin validate .                                 # marketplace + both plugins
+./plugins/smart-review/scripts/validate-adapters.sh       # smart-review manifests: JSON, version match, resolvable paths, agent↔lens sync
 ```
 
-Bump the version everywhere at once:
+Bump smart-review's version across all its manifests at once (does not touch tldraw):
 
 ```bash
-./scripts/bump-version.sh 0.5.0     # writes all manifests, then re-validates
+./plugins/smart-review/scripts/bump-version.sh 0.5.0
 ```
 
-Eval harness (`evals/smart-review/`, Node 18+, dev-only — excluded from the packaged plugin):
+The tldraw plugin versions independently — edit `plugins/tldraw/.claude-plugin/plugin.json`
+by hand.
+
+Eval harness (`plugins/smart-review/evals/`, Node 18+, dev-only — excluded from the packaged plugin):
 
 ```bash
-cd evals/smart-review && npm install
+cd plugins/smart-review/evals && npm install
 npm run list                        # print corpus manifest, no scoring
 npm run score                       # recall/precision, overall + per-case + per-lens
 npm run score -- --drop security    # ablation: recall with one lens removed
@@ -48,38 +63,38 @@ input to `npm run score`) means actually invoking the `smart-review` skill on th
 ## Repo layout
 
 ```
-skills/smart-review/                 # THE shared core — harness-neutral, one copy
-  SKILL.md                           # routing + workflow + output format
-  references/
-    lenses/{spec-conformance,correctness,security,performance,design,tests}.md
-    domain/{api,database,frontend-a11y,typescript-node}.md
-    checklist-routing.md             # trigger -> domain checklist -> target lens
-    finding-schema.md                # the one shape every lens emits
-    merge-contract.md                # dedup / agreement-weighting / severity rollup / nit cap
-    severity.md                      # P0-P3 definitions
-    ensemble.md                      # the max fan-out protocol + harness capability check
+.claude-plugin/marketplace.json      # the "lchase" marketplace: smart-review + tldraw entries
+AGENTS.md                            # repo-level agent pointer (root-scoped convention) -> smart-review
+gemini-extension.json + GEMINI.md    # Gemini CLI installs the repo as an extension -> smart-review
 
-hooks/
-  session-start                      # bootstrap nudge for harnesses without description-triggering
-  hooks.json                         # Claude Code SessionStart schema
-  hooks-cursor.json                  # Cursor sessionStart schema
+plugins/smart-review/                # PLUGIN 1 — multi-harness code review
+  .claude-plugin/plugin.json         # Claude Code manifest (skills/agents/commands/hooks auto-discovered under here)
+  skills/smart-review/               # THE shared core — harness-neutral, one copy
+    SKILL.md                         # routing + workflow + output format
+    references/
+      lenses/{spec-conformance,correctness,security,performance,design,tests}.md
+      domain/{api,database,frontend-a11y,typescript-node}.md
+      checklist-routing.md           # trigger -> domain checklist -> target lens
+      finding-schema.md              # the one shape every lens emits
+      merge-contract.md              # dedup / agreement-weighting / severity rollup / nit cap
+      severity.md                    # P0-P3 definitions
+      ensemble.md                    # the max fan-out protocol + harness capability check
+  agents/*-reviewer.md               # Claude Code ONLY — the subagents max dispatches in the isolated variant
+  agents/merge-synthesizer.md        # Claude Code ONLY — the merge stage
+  commands/*.md                      # Claude Code ONLY — /smart-review:{min,max,review,pr,pr-comments}
+  hooks/{session-start,hooks.json,hooks-cursor.json}   # bootstrap nudge for harnesses without description-triggering
+  .cursor-plugin/plugin.json         # Cursor manifest -> ./skills/, ./hooks/hooks-cursor.json
+  .codex-plugin/plugin.json          # Codex manifest -> ./skills/
+  scripts/{validate-adapters.sh,bump-version.sh}
+  evals/                             # dev-only eval kit; excluded from what installers pull
+  SMART-REVIEW.md                    # the design writeup
 
-.claude-plugin/
-  plugin.json                        # Claude Code manifest (skills/agents/commands/hooks auto-discovered at repo root)
-  marketplace.json                   # marketplace "chase", one entry, source "."
-.cursor-plugin/plugin.json           # Cursor manifest -> ./skills/, ./hooks/hooks-cursor.json
-.codex-plugin/plugin.json            # Codex manifest -> ./skills/
-gemini-extension.json + GEMINI.md    # Gemini CLI extension
-AGENTS.md                            # AGENTS.md-convention pointer into the skill
-
-agents/*-reviewer.md                 # Claude Code ONLY — the subagents max dispatches in the isolated variant
-agents/merge-synthesizer.md          # Claude Code ONLY — the merge stage
-commands/*.md                        # Claude Code ONLY — /smart-review:{min,max,review,pr,pr-comments}
-
-scripts/
-  validate-adapters.sh  bump-version.sh
-evals/smart-review/                  # dev-only eval kit; excluded from what installers pull
-SMART-REVIEW.md                      # the skill's design writeup (was the plugin README)
+plugins/tldraw/                      # PLUGIN 2 — Claude Code only, self-contained
+  .claude-plugin/plugin.json         # own manifest, own version
+  skills/diagram/
+    SKILL.md                         # node/edge spec -> auto-layout -> .tldr + image
+    scripts/build-tldr.mjs           # spec.json -> .tldr, then npx @kitschpatrol/tldraw-cli -> png/svg
+    references/tldr-format.md        # .tldr record shapes + the invalidRecords constraints
 ```
 
 ## Architecture: smart-review
@@ -133,6 +148,12 @@ in `max` — there is no "lead reviewer" subagent doing the fan-out.
 
 ## Working on this repo
 
+Paths below are relative to `plugins/smart-review/` unless noted. The tldraw plugin is
+fully self-contained under `plugins/tldraw/` — its SKILL.md and `references/tldr-format.md`
+are the source of truth (the `.tldr` format constraints there — id charset, fractional
+index keys, `geo` enum — were hard-won; keep them). Test a tldraw change by running
+`scripts/build-tldr.mjs` on a spec and opening the `.tldr`.
+
 - A change to a lens checklist, the finding schema, the merge contract, or the ensemble
   protocol affects **every mode and every harness** (`min` and the sequential `max` inline
   the same references; the Claude Code reviewer agents mirror the lens files). After editing
@@ -140,7 +161,8 @@ in `max` — there is no "lead reviewer" subagent doing the fan-out.
   both still make sense.
 - Adding harness support = a new manifest pointing at `./skills/` + (if the harness lacks
   description-triggering) a hooks wrapper. Never fork skill content.
-- Bump the version with `scripts/bump-version.sh` so all manifests stay in lockstep.
-- Eval corpus cases (`evals/smart-review/corpus/<n>-<lens>-<defect>/`): the `category` in
+- Bump the version with `scripts/bump-version.sh` so all smart-review manifests stay in
+  lockstep (it does not touch the tldraw plugin).
+- Eval corpus cases (`evals/corpus/<n>-<lens>-<defect>/`): the `category` in
   `expected.json` must match the vocabulary fixed by `finding-schema.md` — scoring matches
   on it exactly.
