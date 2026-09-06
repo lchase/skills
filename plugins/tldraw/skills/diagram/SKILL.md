@@ -112,6 +112,115 @@ Send the PNG to the user with `SendUserFile`. Tell them the `.tldr` path (in the
 directory) and that they can open it at tldraw.com (File then Open) or in the tldraw editor
 to rearrange anything. Don't delete the outputs.
 
+## Style
+
+The spec controls what the diagram *says*. These rules control whether it reads. They come
+from a survey of tldraw-native and Excalidraw diagrams plus C4, Azure Well-Architected,
+Tufte, and concept-mapping conventions (`references/design-language-research.md`).
+
+### Universal rules
+
+1. **Colour is meaning, never decoration.** Leave nodes `black` unless a colour encodes
+   something a reader can name: a category, a pipeline stage, a lane, a changed or
+   highlighted element. An all-one-colour diagram is never wrong. Two colours with no
+   legend is a bug.
+2. **Small shape vocabulary.** At most four semantic shapes in one diagram: `rectangle`
+   (thing / process), `diamond` (decision), `ellipse` (start / end), `cloud` (external
+   system or datastore). Skip star, heart, octagon, pentagon, trapezoid, hexagon: they
+   carry no shared meaning and read as noise.
+3. **Every edge is directed**, one arrowhead, source to target. No bidirectional arrows;
+   draw two edges if a call genuinely goes both ways. Give an edge a verb label wherever
+   the relationship is not obvious from context ("reads from", "publishes to",
+   "on failure").
+4. **Dashed means a different kind of link, not emphasis.** Reserve `dashed` for async,
+   fallback, or error paths, and only when a solid edge is present to contrast against.
+5. **`fill: none` by default.** Add `semi` or `solid` only to encode a group ("the green
+   ones are AWS"). A fill with no referent is chartjunk.
+6. **Short labels.** One line for a process step, a noun phrase for a component. Long text
+   overflows the box. If a node needs a sentence, it is probably two nodes.
+7. **The hand-drawn look says "draft".** An asset for concept sketches and explanations, a
+   mild liability for a system-of-record architecture doc. Match the genre to it rather
+   than fighting it.
+
+### Per genre
+
+**Explaining a technical concept.** Small node count. Uniform repeated units (list cells,
+tree nodes, array slots) in one row or one tree, where the arrow is the operation being
+taught. For before / after, use two visually sibling halves with the differences called
+out as separate annotation nodes. Colour is fair game here *as a data channel*: highlight
+the one changed node, or colour tree levels by depth.
+
+```json
+{
+  "title": "Linked list insert",
+  "nodes": [
+    { "id": "a", "text": "node A" }, { "id": "b", "text": "node B" },
+    { "id": "c", "text": "node C" },
+    { "id": "new", "text": "new node", "color": "green" }
+  ],
+  "edges": [
+    { "from": "a", "to": "b", "dashed": true, "color": "grey", "text": "was" },
+    { "from": "a", "to": "new" }, { "from": "new", "to": "b" },
+    { "from": "b", "to": "c" }
+  ]
+}
+```
+
+**Architecture / system overview.** Group into tiers, one concern per row, arrows crossing
+tier lines. Name the technology on every node ("Postgres", not "database"). Label every
+arrow with the call and, where it matters, the protocol. Draw split read / write paths as
+separate lanes; draw a fan-out (one service, N identical instances) as repeated identical
+nodes. Keep external systems as `cloud`. Monochrome plus clean grouping beats a rainbow.
+
+```json
+{
+  "title": "Request path",
+  "nodes": [
+    { "id": "cdn",  "text": "CDN",            "shape": "cloud" },
+    { "id": "lb",   "text": "Load balancer" },
+    { "id": "app1", "text": "API instance" }, { "id": "app2", "text": "API instance" },
+    { "id": "cache","text": "Redis" },
+    { "id": "db",   "text": "Postgres",       "shape": "cloud" }
+  ],
+  "edges": [
+    { "from": "cdn", "to": "lb" },
+    { "from": "lb", "to": "app1" }, { "from": "lb", "to": "app2" },
+    { "from": "app1", "to": "cache", "text": "read-through" },
+    { "from": "app1", "to": "db", "text": "writes, SQL" }
+  ]
+}
+```
+
+**Mapping ideas / concept map.** Put a linking phrase on *every* edge, so each
+concept-phrase-concept reads as a sentence ("caching / reduces / latency"). Organise
+general to specific, top to bottom. Add cross-links between far-apart branches and colour
+them so they stand out: they carry the insight. Little or no fill, few shapes, no
+protocols. Uneven whitespace is correct here.
+
+```json
+{
+  "title": "Why cache",
+  "nodes": [
+    { "id": "cache", "text": "Caching" },
+    { "id": "lat",   "text": "Latency" }, { "id": "load", "text": "DB load" },
+    { "id": "stale", "text": "Staleness" }, { "id": "inval", "text": "Invalidation" }
+  ],
+  "edges": [
+    { "from": "cache", "to": "lat",   "text": "reduces" },
+    { "from": "cache", "to": "load",  "text": "reduces" },
+    { "from": "cache", "to": "stale", "text": "risks" },
+    { "from": "stale", "to": "inval", "text": "forces", "color": "orange", "dashed": true }
+  ]
+}
+```
+
+### Known limits
+
+The generator is top-to-bottom only, cannot draw frames or containers, emits no legend,
+and gives no routing or line-weight control. For an architecture diagram that needs nested
+boundaries (VPC, subnet) or swimlanes, produce the best flat version and tell the user to
+add the containers in the editor. Tracked as issues on the repo.
+
 ## Layout
 
 Auto-layout is deliberately simple: nodes are placed in **layers top-to-bottom** following
