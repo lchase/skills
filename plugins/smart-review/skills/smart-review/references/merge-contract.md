@@ -31,6 +31,10 @@ Lenses will sometimes prescribe opposite moves (design says "extract a helper", 
 - If a call is needed, the higher-severity concern wins the framing (a P1 correctness/security concern outranks a P3 style preference). Security and correctness generally win ties over style and micro-perf.
 - Put unresolved judgement calls in the report's "Conflicts / judgement calls" section, with both sides, so the author decides with eyes open.
 
+## 3b. Validate before it ships
+
+Agreement and dedup tell you findings are *consistent*; they don't tell you a finding is *true*. Before rolling up severity, run `references/validation.md` on every P0/P1 and on any P2/P3 that step 2 promoted into the visible tiers: re-read the cited code fresh, check whether it predates this diff, check whether it's already handled elsewhere, and check whether it's an intentional pattern rather than a bug. Findings that don't survive get downgraded or discarded per that file's rules — discarded findings still get one line in the report's `### Discarded` note, never a silent drop.
+
 ## 4. Normalize and roll up severity
 
 Every finding is already P0–P3 (severity.md). Compute the verdict from the surviving set:
@@ -40,9 +44,11 @@ Every finding is already P0–P3 (severity.md). Compute the verdict from the sur
 - only **P2/P3** → `APPROVE` (or `APPROVE WITH NITS` if there are P3s)
 - nothing → `APPROVE`, and say so explicitly rather than staying silent.
 
-## 5. Order: structure over nits
+## 5. Order: structure over nits, spec-conformance stays separate
 
-Within the report, order by severity, then by structural weight, then by agreement count. The single most important finding leads — if there is one structural problem and ten nits, the structural problem *is* the review and goes first. A reader who fixes only the top three findings should be fixing the three that matter most.
+Within the P0-P3 ladder, order by severity, then by structural weight, then by agreement count. The single most important finding leads — if there is one structural problem and ten nits, the structural problem *is* the review and goes first. A reader who fixes only the top three findings should be fixing the three that matter most.
+
+`lens: spec-conformance` findings are the one exception: pull them out of the P0-P3 ladder into their own always-shown `### Spec conformance` section (report format in `SKILL.md`), instead of interleaving them by severity with everything else. Reason: code can pass every quality lens and still implement the wrong thing, and a P2 spec-drift finding sitting in the middle of a pile of correctness P2s is exactly the kind of signal this skill exists to stop from getting buried. They still count toward the overall verdict rollup (step 4) as if they were in the ladder — only their *display position* changes.
 
 ## 6. Cap the nits
 

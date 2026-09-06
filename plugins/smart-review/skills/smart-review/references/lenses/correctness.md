@@ -12,6 +12,14 @@
 - **Logic.** Inverted conditions (`logic-inversion`), `&&`/`||` mixups, wrong comparison operator, a loop that never advances or never terminates, integer/float and rounding assumptions (especially money — never float for currency).
 - **Contracts.** Does the code uphold what its callers assume, and assume only what its callees guarantee? A function that now returns `null` where it never did before breaks every caller.
 
+## Negative space
+
+The bugs above are all in the diff. These are the ones that live in what the diff *didn't* touch:
+
+- What calls this function today with the old contract, and does the diff's change to inputs/outputs/errors break an assumption none of those callers know changed?
+- Does a caller elsewhere rely on this still throwing/returning the old shape on the path this diff altered?
+- Is there a sibling function (the sync version of an async one, the batch version of a single-item one) that needed the same fix and didn't get it?
+
 ## How to find them, not just recognize them
 
 Pick the two or three riskiest changed functions and trace a hostile input through them by hand: what does an empty string, a huge list, a concurrent second call, or a downstream timeout do here? Recognizing categories is easy; running the input is what surfaces the bug.

@@ -12,6 +12,12 @@
 - **Missing caching.** An expensive, repeated, cacheable computation or fetch with no memoization or cache layer (`missing-cache`) — but only where the access pattern actually repeats.
 - **Chattiness.** Sequential awaits that could run in parallel (`Promise.all`); many round-trips where one batched call would do.
 
+## Negative space
+
+- Did this diff add a new read path to data that's cached elsewhere, without hooking into cache invalidation — so it silently serves stale data instead of failing loudly?
+- Is there an existing index/cache/batch mechanism nearby that this new code path bypasses instead of reusing, because it was written as if it were the first caller?
+- Does the change grow a collection (a list, a cache, a subscription set) with no corresponding removal path, so cost is invisible today and only shows up at scale?
+
 ## Calibrate
 
 Estimate the input size in production. "This is O(n²)" is only a P1 if `n` is large and on a hot path; on a bounded 10-element config list it is a non-issue — say so instead of flagging it. Tie every finding to a realistic scale in `why`.

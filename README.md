@@ -66,7 +66,7 @@ The tldraw skill's command also changed: `/tldraw:tldraw` → **`/tldraw:diagram
 
 | Plugin | What it does | Skills / commands | Harnesses |
 |---|---|---|---|
-| [**smart-review**](plugins/smart-review/) | Ensemble code review — six specialized lenses over a diff, merged into one deduplicated, severity-ranked verdict | `/smart-review:{review,min,max,pr,pr-comments}` + auto-trigger | Claude Code, Cursor, Codex, Gemini CLI, any AGENTS.md agent |
+| [**smart-review**](plugins/smart-review/) | Ensemble code review — six specialized lenses over a diff, merged into one deduplicated, severity-ranked verdict | `/smart-review:{review,min,max,add-pr-review,review-pr-comments}` + auto-trigger | Claude Code, Cursor, Codex, Gemini CLI, any AGENTS.md agent |
 | [**tldraw**](plugins/tldraw/) | Natural-language description → editable tldraw document (`.tldr`) + rendered PNG/SVG | `/tldraw:diagram` + auto-trigger | Claude Code only (needs Node + `npx`) |
 
 ---
@@ -108,8 +108,8 @@ sequential walk. Design and internals: [`plugins/smart-review/SMART-REVIEW.md`](
 - `/smart-review:review` — auto (routes to min or max by size + sensitivity)
 - `/smart-review:min` — fast single-pass review
 - `/smart-review:max` — orchestrated ensemble review
-- `/smart-review:pr <PR number or URL>` — reviews a GitHub PR and, after you confirm what to publish, posts the findings as PR comments
-- `/smart-review:pr-comments <PR number or URL>` — triages a PR's existing unresolved review comments, fixes or explains each after your approval, replies, and resolves the thread
+- `/smart-review:add-pr-review <PR number or URL>` — reviews a GitHub PR and, after you confirm what to publish, posts the findings as PR comments
+- `/smart-review:review-pr-comments <PR number or URL>` — triages a PR's existing unresolved review comments, fixes or explains each after your approval, replies, and resolves the thread
 
 The skill also triggers automatically when you ask Claude to review a diff, PR, or branch.
 

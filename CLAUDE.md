@@ -79,9 +79,10 @@ plugins/smart-review/                # PLUGIN 1 — multi-harness code review
       merge-contract.md              # dedup / agreement-weighting / severity rollup / nit cap
       severity.md                    # P0-P3 definitions
       ensemble.md                    # the max fan-out protocol + harness capability check
+      validation.md                  # validator pass + negative-space checks
   agents/*-reviewer.md               # Claude Code ONLY — the subagents max dispatches in the isolated variant
   agents/merge-synthesizer.md        # Claude Code ONLY — the merge stage
-  commands/*.md                      # Claude Code ONLY — /smart-review:{min,max,review,pr,pr-comments}
+  commands/*.md                      # Claude Code ONLY — /smart-review:{min,max,review,add-pr-review,review-pr-comments}
   hooks/{session-start,hooks.json,hooks-cursor.json}   # bootstrap nudge for harnesses without description-triggering
   .cursor-plugin/plugin.json         # Cursor manifest -> ./skills/, ./hooks/hooks-cursor.json
   .codex-plugin/plugin.json          # Codex manifest -> ./skills/
@@ -114,10 +115,10 @@ Modes, routed by `SKILL.md`:
 - **auto** (plain `/smart-review` or the skill auto-triggering) — routes to min or max by
   diff size (>~150 lines or >~5 files), sensitive paths (auth, crypto, SQL, shell/file
   exec, payments, PII), or an explicit pre-merge/thorough ask.
-- **`/smart-review:pr <PR>`** (Claude Code) — fetches a PR diff via `gh`, runs min/max, then
+- **`/smart-review:add-pr-review <PR>`** (Claude Code) — fetches a PR diff via `gh`, runs min/max, then
   gates on explicit user confirmation of what to publish before posting comments. Never
   approves/requests-changes/merges.
-- **`/smart-review:pr-comments <PR>`** (Claude Code) — triages a PR's *existing* unresolved
+- **`/smart-review:review-pr-comments <PR>`** (Claude Code) — triages a PR's *existing* unresolved
   review comments via GraphQL, classifies each fix/docs/explain/disagree, gates on approval
   before editing and before pushing, then replies and resolves each thread. Not a review pass.
 

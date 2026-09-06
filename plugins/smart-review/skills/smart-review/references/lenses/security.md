@@ -17,6 +17,12 @@ The core move: identify every source of attacker-controlled data (request params
 - **Open redirect**, missing output encoding, missing CSRF protection on state-changing routes, over-permissive CORS, sensitive data in URLs or logs.
 - **Crypto misuse.** Home-rolled crypto, ECB mode, static IVs, weak/absent hashing for passwords (use a slow KDF), `Math.random()` for tokens.
 
+## Negative space
+
+- Is there a trust boundary this diff crosses that has **no** check on either side — not "the check is weak" but "no one wrote it," because both sides assumed the other validates?
+- Did a new endpoint/field/action get added without a corresponding authz rule, because the reviewer's eye follows the code that changed and there's nothing to see where a check is simply absent?
+- Does an old, already-fixed vulnerability class reappear because the diff bypasses the shared helper that used to guarantee it (a new raw query next to a codebase that otherwise always goes through a query builder)?
+
 ## Bias
 
 When unsure whether something is exploitable, flag it with your uncertainty in `confidence` and the reachability in `why`, rather than staying silent — under-reporting security is costlier than a false positive here. Recommend established libraries over hand-rolled security primitives.

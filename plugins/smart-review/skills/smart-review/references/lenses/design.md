@@ -20,6 +20,12 @@ Respect documented repo conventions first: where a project's own standards endor
 - **God object / long function / large file** — one thing that knows or does too much (`god-object`). A small diff can still bolt another branch onto an already-overgrown file — flag the trajectory.
 - Primitive obsession, long parameter lists, temporal coupling (must call A before B with no enforcement).
 
+## Negative space
+
+- Did this change add a second way to do something the codebase already has one blessed way to do, instead of extending the existing one — a parallel path that will drift?
+- Is there a module/package that obviously owns this concept, and the diff put the logic somewhere else because that was the file already open?
+- Does removing code here strand something else (a helper only that caller used, a config flag only that branch read) that the diff didn't clean up because it wasn't in the diff's own file?
+
 ## Propose the move, not just the smell
 
 A finding that says "this is complex" leaves the author guessing. Reach for a **named restructuring**: replace a conditional chain with a typed dispatch; collapse duplicate branches into one flow; separate orchestration from business logic; move feature-specific logic into the package that owns the concept; make a type boundary explicit so downstream branching disappears; delete a pass-through wrapper. Prefer the remedy that *removes* moving pieces over one that relocates the same complexity — relocating complexity is not reducing it. If the restructuring is non-trivial, propose an incremental path, not a big-bang rewrite.

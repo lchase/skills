@@ -1,15 +1,23 @@
 {
   "name": "smart-review",
   "displayName": "Smart Review",
-  "description": "Multi-lens code review of a diff: spec-conformance, correctness, security, performance, design, tests — merged into one deduplicated, severity-ranked verdict.",
-  "version": "0.4.0",
+  "description": "Multi-lens code review of a diff: spec-conformance, correctness, security, performance, design, tests \u2014 merged into one deduplicated, severity-ranked verdict.",
+  "version": "0.5.1",
   "author": {
     "name": "Lawrence Chase"
   },
   "homepage": "https://github.com/lchase/skills",
   "repository": "https://github.com/lchase/skills",
   "license": "MIT",
-  "keywords": ["smart-review", "review", "quality", "security", "performance", "pr", "pre-merge"],
+  "keywords": [
+    "smart-review",
+    "review",
+    "quality",
+    "security",
+    "performance",
+    "pr",
+    "pre-merge"
+  ],
   "skills": "./skills/",
   "hooks": "./hooks/hooks-cursor.json"
 }

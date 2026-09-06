@@ -25,6 +25,7 @@ When invoked as plain `/smart-review` (no mode), decide the lane before doing an
 
 - The diff changes more than ~150 lines or touches more than ~5 files.
 - The diff touches a **sensitive path**: authentication, authorization, session/token handling, cryptography, deserialization, raw SQL or query building, file-system or shell execution, payment or billing, or anything reading/writing PII.
+- The diff touches a **silent-pass mechanism**: CI/CD config, test harness or runner setup, coverage thresholds, feature-flag gating, or anything else that fails *quietly* rather than loudly when broken. Escalate regardless of size — a broken gate here doesn't show up until something it should have caught ships.
 - The user asks for a pre-merge / release / "is this safe to ship" review, or names a spec/PRD to check against.
 - The user is unfamiliar with the code under review, or explicitly asks for thoroughness.
 
@@ -78,9 +79,9 @@ Severity is **P0–P3**, defined in `references/severity.md`, with the rule that
 One agent, one context, no fan-out.
 
 1. Scope the diff (Step 1) and find the spec (Step 2).
-2. From `references/checklist-routing.md`, note which domain checklists the diff triggers.
+2. From `references/checklist-routing.md`, note which domain checklists the diff triggers. State it in one line, e.g. "Routing the database checklist into correctness + performance — diff touches migrations/." Say "no domain checklists triggered" if none matched; don't skip the line.
 3. Walk all six lenses in sequence in this one context. For each, read its checklist file, plus any domain checklist routed to it, and record findings in the canonical schema. Give a quick spec-conformance check inline — full gating is a `max` feature.
-4. Apply the merge rules from `references/merge-contract.md` yourself (dedup, severity rollup, structural-over-nits ordering, nit cap) and emit the report in the format at the bottom of this file.
+4. Apply the merge rules from `references/merge-contract.md` yourself (dedup, severity rollup, structural-over-nits ordering, nit cap) — including the validation pass (`references/validation.md`) on P0/P1s and promoted findings before they ship — and emit the report in the format at the bottom of this file.
 
 `min` trades the ensemble's decorrelation for speed. That is the right trade for small, low-risk diffs; it is the wrong trade before a merge that touches something dangerous.
 
@@ -88,9 +89,9 @@ One agent, one context, no fan-out.
 
 The orchestrated ensemble. **The top-level agent is the orchestrator** — subagents cannot spawn subagents, so fan out from here, then collect.
 
-1. Scope the diff and find the spec (Steps 1–2). Note triggered domain checklists.
+1. Scope the diff and find the spec (Steps 1–2). Note triggered domain checklists and state them in one line with the reason, same as `min` — this is what goes into each subagent's prompt, so get it right before fanning out.
 2. Run the ensemble per `references/ensemble.md`. That file has the capability check: isolated parallel subagents if this harness supports them (Claude Code dispatches the bundled `agents/*-reviewer.md`), otherwise a sequential lens walk in this context. Both keep the spec-gate and all six lenses.
-3. **Merge.** Apply `references/merge-contract.md` exactly — dedup, agreement-weighting (≥2 lenses agree → confidence + rank boost), conflict resolution, severity rollup, structure-over-nits ordering, nit cap, one verdict. On Claude Code this can go to the `merge-synthesizer` subagent (the only stage that sees everything); elsewhere do it inline.
+3. **Merge.** Apply `references/merge-contract.md` exactly — dedup, agreement-weighting (≥2 lenses agree → confidence + rank boost), conflict resolution, **validation** (`references/validation.md` — re-check P0/P1s and promoted findings against the actual code before they ship, discard or downgrade what doesn't survive), severity rollup, structure-over-nits ordering, nit cap, one verdict. On Claude Code this can go to the `merge-synthesizer` subagent (the only stage that sees everything); elsewhere do it inline.
 
 ## Guardrails
 
@@ -109,6 +110,9 @@ Use this exact structure for the final output in every mode:
 **Verdict**: APPROVE | APPROVE WITH NITS | REQUEST_CHANGES
 <one-sentence why, leading with the most important finding>
 
+### Spec conformance
+<one-line verdict: implements the spec / implements it with gaps / implements the wrong thing / no spec available — plus any spec-conformance findings, each still tagged with its own P0-P3 severity. Kept separate so a spec drift can't get buried under a pile of correctness/style findings; it still feeds the overall verdict rollup below.>
+
 ### P0 — Blocking
 1. **[file:line]** Title — why it matters. → proposed move. (lens; ✓N lenses agree)
 ### P1 — Fix before merge
@@ -117,6 +121,9 @@ Use this exact structure for the final output in every mode:
 
 ### Conflicts / judgement calls
 <where lenses disagreed, both sides, and the call made>
+
+### Discarded
+<findings that failed validation, one line each: file:line — claim — discarded: reason. Omit this section if nothing was discarded.>
 
 ### Strengths
 <what is genuinely well done>
