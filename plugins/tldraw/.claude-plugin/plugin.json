@@ -1,0 +1,10 @@
+{
+  "name": "tldraw",
+  "description": "Turn a natural-language description of a flowchart, architecture diagram, process map, or state machine into an editable tldraw document (.tldr) plus a rendered PNG/SVG. Provides the /tldraw:diagram skill.",
+  "version": "0.1.1",
+  "author": {
+    "name": "Lawrence Chase"
+  },
+  "keywords": ["tldraw", "diagram", "flowchart", "architecture-diagram", "tldr", "visualization"],
+  "license": "MIT"
+}

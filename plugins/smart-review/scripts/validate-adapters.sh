@@ -9,7 +9,7 @@ manifests=(
   .claude-plugin/plugin.json
   .cursor-plugin/plugin.json
   .codex-plugin/plugin.json
-  gemini-extension.json
+  ../../gemini-extension.json
 )
 
 fail=0
@@ -36,10 +36,16 @@ for m in "${manifests[@]}"; do
   echo "OK       $m (v$v)"
 done
 
-# marketplace entry version should track plugin.json
-mkt=$(python3 -c "import json; print(json.load(open('.claude-plugin/marketplace.json'))['plugins'][0].get('version',''))" 2>/dev/null || echo "")
+# marketplace entry version should track plugin.json (entries carry no version today;
+# this stays a no-op unless one is added)
+mkt=$(python3 -c "
+import json
+d = json.load(open('../../.claude-plugin/marketplace.json'))
+e = next((p for p in d['plugins'] if p['name'] == 'smart-review'), {})
+print(e.get('version',''))
+" 2>/dev/null || echo "")
 if [ -n "$mkt" ] && [ "$mkt" != "$ref_version" ]; then
-  echo "VERSION  marketplace.json entry has '$mkt', expected '$ref_version'"; fail=1
+  echo "VERSION  marketplace.json smart-review entry has '$mkt', expected '$ref_version'"; fail=1
 fi
 
 # every reviewer agent must name its source lens checklist

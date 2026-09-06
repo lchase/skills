@@ -2,7 +2,10 @@
 
 A multi-lens code review skill. Six specialized review lenses run over a diff and their findings are merged into a single deduplicated, severity-ranked verdict. Built on the observation that no single reviewer catches everything: the differentiator here is the **merge**, not any individual lens.
 
-It ships from one harness-neutral core (`skills/smart-review/`) with a thin manifest per harness. Claude Code gets slash commands and native parallel-subagent `max`; Cursor, Codex, Gemini CLI, and any AGENTS.md agent run the same workflow with `max` as a sequential ensemble.
+It ships from one harness-neutral core (`skills/smart-review/`, under this plugin directory)
+with a thin manifest per harness. Claude Code gets slash commands and native
+parallel-subagent `max`; Cursor, Codex, Gemini CLI, and any AGENTS.md agent run the same
+workflow with `max` as a sequential ensemble.
 
 ## Install
 
@@ -10,12 +13,13 @@ It ships from one harness-neutral core (`skills/smart-review/`) with a thin mani
 
 ```
 /plugin marketplace add lchase/skills
-/plugin install smart-review@chase
+/plugin install smart-review@lchase
 ```
 
 **Other harnesses:** point the harness's plugin/extension mechanism at this repo — it reads
-the matching manifest (`.cursor-plugin/`, `.codex-plugin/`, `gemini-extension.json`) or
-`AGENTS.md`, all of which resolve to the same `skills/smart-review/`.
+the matching manifest (`plugins/smart-review/.cursor-plugin/`,
+`plugins/smart-review/.codex-plugin/`, root `gemini-extension.json`) or root `AGENTS.md`,
+all of which resolve to the same `skills/smart-review/` core.
 
 ## Modes
 
@@ -66,4 +70,4 @@ Same model reviewing alone repeats its own blind spots; different models miss di
 
 ## Evals
 
-The eval kit lives at the repo root under `evals/smart-review/` (dev-only; it isn't part of the installed plugin). It measures the reviewer empirically — recall and precision per lens, and each lens's marginal contribution via ablation — so you can answer "is max worth its cost?" and "which lenses actually earn their place?" with numbers rather than vibes. See `evals/smart-review/README.md`.
+The eval kit lives under `plugins/smart-review/evals/` (dev-only; it isn't part of the installed plugin). It measures the reviewer empirically — recall and precision per lens, and each lens's marginal contribution via ablation — so you can answer "is max worth its cost?" and "which lenses actually earn their place?" with numbers rather than vibes. See `evals/README.md`.
